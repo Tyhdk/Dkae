@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  
+  <title>Sky Miner - تعدين سحابي واستثمار USDT</title>
+  <meta name="description" content="منصة سكاي ماينر (Sky Miner) للاستثمار والتعدين السحابي. احصل على دخل يومي مضمون بالدولار USDT. سحب فوري، باقات متنوعة، ونظام آمن.">
+  <meta name="keywords" content="تعدين, استثمار, ربح من الانترنت, USDT, تعدين سحابي, Sky Miner, استثمار مضمون, عملات رقمية, TRC20, منصة استثمار">
+  <meta name="robots" content="index, follow">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+  <style>
+    /* إعدادات الصفحة والخطوط */
+    * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
+    
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: radial-gradient(circle at top, #1e293b, #020617);
+      color: #f9fafb;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .app-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      padding-bottom: 90px;
+      scroll-behavior: smooth;
+    }
+
+    .page-section { display: none; }
+    .page-section.active { display: block; animation: fadeInUp 0.5s ease-in-out; }
+
+    /* البار السفلي العائم - تم تعديله ليسع 5 أيقونات */
+    .bottom-nav {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 95%; /* توسيع العرض قليلاً */
+      height: 65px;
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 1000;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #64748b;
+      font-size: 9px; /* تصغير الخط قليلاً */
+      cursor: pointer;
+      width: 20%; /* تقسيم العرض على 5 عناصر */
+      height: 100%;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .nav-item.active { color: #22c55e; transform: translateY(-5px); font-weight: bold; }
+    .nav-icon { font-size: 20px; margin-bottom: 2px; }
+
+    /* البطاقات */
+    .card {
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(12px);
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 18px;
+      margin-bottom: 18px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s;
+    }
+    .card h2 { font-size: 17px; margin-bottom: 10px; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+    .muted { font-size: 12px; color: #94a3b8; line-height: 1.6; }
+    
+    /* الحقول والأزرار */
+    .field { margin-bottom: 14px; }
+    .field label { font-size: 13px; margin-bottom: 6px; display: block; color: #cbd5e1; font-weight: 600; }
+    .field input, .field textarea {
+      width: 100%; padding: 12px 14px; border-radius: 12px;
+      border: 2px solid #334155; background: #0f172a; color: #fff;
+      font-size: 14px; font-family: inherit; text-align: right;
+      transition: all 0.3s; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+    }
+    .field input:focus, .field textarea:focus { border-color: #22c55e; box-shadow: 0 0 15px rgba(34, 197, 94, 0.3); transform: scale(1.01); }
+    input[readonly] { background: rgba(30, 41, 59, 0.5); color: #fbbf24; border-color: #fbbf24; cursor: copy; }
+
+    button {
+      border: none; border-radius: 12px; padding: 12px; font-size: 15px;
+      cursor: pointer; font-family: inherit; width: 100%; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      position: relative; transition: all 0.1s; text-transform: uppercase;
+    }
+    .btn-main { background: linear-gradient(to bottom, #22c55e, #16a34a); color: #fff; box-shadow: 0 4px 0 #14532d; }
+    .btn-main:active { transform: translateY(4px); box-shadow: none; }
+    .btn-secondary { background: #334155; color: #e2e8f0; box-shadow: 0 4px 0 #1e293b; }
+    .btn-secondary:active { transform: translateY(4px); box-shadow: none; }
+    .btn-danger { background: linear-gradient(to bottom, #ef4444, #dc2626); color: #fff; box-shadow: 0 4px 0 #991b1b; }
+    .btn-danger:active { transform: translateY(4px); box-shadow: none; }
+
+    .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 0 6px; }
+    .user-badge { background: rgba(30, 41, 59, 0.8); padding: 6px 14px; border-radius: 30px; font-size: 13px; border: 1px solid #334155; }
+    .wallet-box { text-align: center; padding: 25px 0; background: radial-gradient(circle, #0f172a 0%, #020617 100%); }
+    .wallet-amount { font-size: 40px; font-weight: 800; color: #4ade80; direction: ltr; margin-top: 5px;}
+    .plans-grid { display: grid; gap: 14px; }
+    .plan-card { background: rgba(15, 23, 42, 0.8); border: 1px solid #334155; padding: 14px; border-radius: 16px; display: flex; gap: 14px; align-items: center; transition: transform 0.2s; }
+    .plan-media { width: 65px; height: 65px; border-radius: 12px; object-fit: cover; background: #333; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+    .plan-info { flex: 1; }
+    .plan-title { font-weight: bold; font-size: 15px; margin-bottom: 6px; color: #fff; }
+    .plan-details { font-size: 11px; color: #cbd5e1; display: flex; gap: 10px; background: #1e293b; padding: 4px 8px; border-radius: 6px; width: fit-content; }
+    .invest-item { background: rgba(2, 6, 23, 0.8); border: 1px solid #334155; padding: 16px; border-radius: 14px; margin-bottom: 12px; position: relative; overflow: hidden; }
+    .invest-item::before { content: ''; position: absolute; left: 0; top: 0; width: 4px; height: 100%; background: #22c55e; }
+    #authScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #020617; z-index: 2000; padding: 25px; display: flex; flex-direction: column; justify-content: center; }
+    
+    /* تنسيق صفحة من نحن */
+    .about-feature { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; background: rgba(255,255,255,0.03); padding: 10px; border-radius: 12px; }
+    .about-icon { width: 40px; height: 40px; background: rgba(34, 197, 94, 0.1); color: #22c55e; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+  </style>
+</head>
+<body>
+
+  <div id="authScreen" class="animate__animated animate__fadeIn" style="display:none;">
+    <div style="text-align:center; margin-bottom:30px;">
+      <h1 class="animate__animated animate__bounceInDown" style="color:#22c55e; margin-bottom:10px; font-size: 28px;">Sky Miner</h1>
+      <p class="muted">سجّل الدخول للوصول إلى لوحة التحكم</p>
+    </div>
+    
+    <div class="field animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
+      <label>البريد الإلكتروني</label>
+      <input type="email" id="authEmail" style="text-align:left; direction:ltr;" />
+    </div>
+    <div class="field animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
+      <label>كلمة المرور</label>
+      <input type="password" id="authPassword" style="text-align:left; direction:ltr;" />
+    </div>
+    <div class="field animate__animated animate__fadeInUp" id="nameFieldBox" style="display:none; animation-delay: 0.2s;">
+      <label>الاسم الكامل</label>
+      <input type="text" id="authName" />
+    </div>
+    <div class="animate__animated animate__fadeInUp" style="animation-delay: 0.3s;">
+      <button id="loginBtn" class="btn-main" style="margin-bottom:12px;">تسجيل الدخول</button>
+      <button id="showRegisterBtn" class="btn-secondary">ليس لدي حساب؟ إنشاء جديد</button>
+      <button id="doRegisterBtn" class="btn-main" style="display:none; margin-bottom:12px;">إنشاء الحساب</button>
+      <button id="backToLoginBtn" class="btn-secondary" style="display:none;">العودة للدخول</button>
+    </div>
+    <p id="authMsg" style="text-align:center; margin-top:15px; font-size:13px;"></p>
+  </div>
+
+  <div class="app-content">
+    <div class="header-top animate__animated animate__fadeInDown">
+      <div><h2 style="font-size:18px;">مرحباً، <span id="userNameTag" style="color:#22c55e;">زائر</span> 👋</h2></div>
+      <div class="user-badge"><span id="walletHeader">0.00</span> $</div>
+    </div>
+
+    <div id="tab-home" class="page-section active animate__animated animate__fadeInUp">
+      <h3 style="margin-bottom:15px; font-size:16px; color:#fff; display:flex; align-items:center; gap:8px;">
+        <span style="font-size:20px;">🚀</span> باقات الاستثمار
+      </h3>
+      <div id="plansContainer" class="plans-grid"></div>
+      <div id="plansMsg" class="muted" style="text-align:center; margin-top:20px;"></div>
+    </div>
+
+    <div id="tab-invest" class="page-section animate__animated animate__fadeInUp">
+      <h3 style="margin-bottom:15px; font-size:16px; color:#fff; display:flex; align-items:center; gap:8px;">
+        <span style="font-size:20px;">📊</span> استثماراتي النشطة
+      </h3>
+      <div id="myInvestments"></div>
+      <div id="investMsg" class="muted" style="text-align:center; margin-top:10px;"></div>
+    </div>
+
+    <div id="tab-wallet" class="page-section animate__animated animate__fadeInUp">
+      <div class="card wallet-box">
+        <div class="muted">الرصيد الكلي</div>
+        <div class="wallet-amount animate__animated animate__pulse animate__infinite"><span id="walletAmount">0.00</span> $</div>
+        <p class="muted" style="margin-top:10px; background: rgba(255,255,255,0.05); padding: 8px; border-radius: 8px;">
+          لشحن الرصيد: انسخ الـ ID من صفحة حسابي وأرسله للأدمن.
+        </p>
+      </div>
+      <div class="card">
+        <h2>طلب سحب رصيد</h2>
+        <div class="field">
+          <label>تفاصيل السحب (المبلغ + المحفظة TRC20)</label>
+          <textarea id="depositMessage" rows="3" placeholder="أريد سحب 50$ على المحفظة Txxxx..."></textarea>
+        </div>
+        <button id="sendDepositMsgBtn" class="btn-danger">إرسال طلب السحب 📤</button>
+        <div id="depositMsgStatus" class="muted" style="margin-top:8px;"></div>
+      </div>
+    </div>
+
+    <div id="tab-about" class="page-section animate__animated animate__fadeInUp">
+      <div class="card" style="text-align:center;">
+        <h1 style="color:#22c55e; font-size:24px; margin-bottom:8px;">Sky Miner ☁️</h1>
+        <p class="muted">المنصة الرائدة في مجال التعدين السحابي</p>
+      </div>
+
+      <div class="card">
+        <h2 style="font-size:16px;">لماذا تختار Sky Miner؟</h2>
+        <div class="about-feature">
+          <div class="about-icon">🔒</div>
+          <div>
+            <div style="font-weight:bold; font-size:14px;">أمان عالي</div>
+            <div class="muted">نستخدم أحدث تقنيات التشفير لحماية أصولك.</div>
+          </div>
+        </div>
+        <div class="about-feature">
+          <div class="about-icon">⚡</div>
+          <div>
+            <div style="font-weight:bold; font-size:14px;">سحب فوري</div>
+            <div class="muted">نظام معالجة سحوبات سريع وموثوق 24/7.</div>
+          </div>
+        </div>
+        <div class="about-feature">
+          <div class="about-icon">💰</div>
+          <div>
+            <div style="font-weight:bold; font-size:14px;">عوائد مضمونة</div>
+            <div class="muted">خطط استثمارية مدروسة لتحقيق أفضل ربح يومي.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 style="font-size:16px;">عن الشركة</h2>
+        <p class="muted">
+          نحن في Sky Miner نسعى لتوفير فرص استثمارية في مجال العملات الرقمية للجميع، دون الحاجة لشراء أجهزة باهظة الثمن. نظامنا السحابي يتيح لك البدء برأس مال بسيط وجني الأرباح من اليوم الأول.
+        </p>
+      </div>
+    </div>
+
+    <div id="tab-profile" class="page-section animate__animated animate__fadeInUp">
+      <div class="card">
+        <h2>بياناتي الشخصية</h2>
+        <div class="field"><label>الاسم</label><input type="text" id="profileName" readonly /></div>
+        <div class="field"><label>البريد الإلكتروني</label><input type="text" id="profileEmail" readonly style="direction:ltr; text-align:right;" /></div>
+        <div class="field">
+          <label style="color:#22c55e; font-weight:bold;">🆔 معرف المستخدم (للشحن)</label>
+          <div style="display:flex; gap:8px;">
+            <input type="text" id="profileId" readonly value="..." />
+            <button id="copyIdBtn" class="btn-secondary" style="width:90px;">نسخ 📋</button>
+          </div>
+          <p class="muted" style="margin-top:4px;">انسخ هذا الكود وأرسله للأدمن.</p>
+        </div>
+        <button id="logoutBtn" class="btn-danger" style="margin-top:15px;">تسجيل الخروج 🔒</button>
+      </div>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <div class="nav-item active" onclick="switchTab('home', this)">
+      <span class="nav-icon">🏠</span><span>الرئيسية</span>
+    </div>
+    <div class="nav-item" onclick="switchTab('invest', this)">
+      <span class="nav-icon">📈</span><span>استثمار</span>
+    </div>
+    <div class="nav-item" onclick="switchTab('wallet', this)">
+      <span class="nav-icon">💰</span><span>المحفظة</span>
+    </div>
+    <div class="nav-item" onclick="switchTab('about', this)">
+      <span class="nav-icon">ℹ️</span><span>من نحن</span>
+    </div>
+    <div class="nav-item" onclick="switchTab('profile', this)">
+      <span class="nav-icon">👤</span><span>حسابي</span>
+    </div>
+  </nav>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, addDoc, getDocs, query, where, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAPdLvL9yTmGaGRjcmFrTKcKSamL_Zso_s",
+      authDomain: "sthmar-ff2e2.firebaseapp.com",
+      projectId: "sthmar-ff2e2",
+      storageBucket: "sthmar-ff2e2.firebasestorage.app",
+      messagingSenderId: "456664476578",
+      appId: "1:456664476578:web:3939cd5e00ba1b5a50e0fb"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    window.switchTab = function(tabName, el) {
+      document.querySelectorAll('.page-section').forEach(p => {
+        p.classList.remove('active');
+        p.classList.remove('animate__fadeInUp');
+      });
+      const target = document.getElementById('tab-' + tabName);
+      target.classList.add('active');
+      target.classList.add('animate__fadeInUp');
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      el.classList.add('active');
+    };
+
+    const authScreen = document.getElementById('authScreen');
+    const showRegisterBtn = document.getElementById('showRegisterBtn');
+    const backToLoginBtn = document.getElementById('backToLoginBtn');
+    const loginBtn = document.getElementById('loginBtn');
+    const doRegisterBtn = document.getElementById('doRegisterBtn');
+    const nameFieldBox = document.getElementById('nameFieldBox');
+    const authMsg = document.getElementById('authMsg');
+
+    showRegisterBtn.onclick = () => {
+      loginBtn.style.display = 'none'; showRegisterBtn.style.display = 'none';
+      doRegisterBtn.style.display = 'flex'; backToLoginBtn.style.display = 'flex';
+      nameFieldBox.style.display = 'block';
+      authMsg.textContent = '';
+    };
+    backToLoginBtn.onclick = () => {
+      loginBtn.style.display = 'flex'; showRegisterBtn.style.display = 'flex';
+      doRegisterBtn.style.display = 'none'; backToLoginBtn.style.display = 'none';
+      nameFieldBox.style.display = 'none';
+      authMsg.textContent = '';
+    };
+
+    let currentUser = null;
+
+    async function ensureUserDoc(user) {
+      const userRef = doc(db, "users", user.uid);
+      const snap = await getDoc(userRef);
+      if (!snap.exists()) {
+        await setDoc(userRef, {
+          name: user.displayName || "مستخدم جديد",
+          email: user.email,
+          walletBalance: 0,
+          createdAt: serverTimestamp(),
+          uid: user.uid
+        });
+      }
+      return snap.exists() ? snap.data() : { walletBalance: 0 };
+    }
+
+    async function refreshUserData() {
+      if (!currentUser) return;
+      document.getElementById('profileName').value = currentUser.displayName;
+      document.getElementById('profileEmail').value = currentUser.email;
+      document.getElementById('profileId').value = currentUser.uid;
+
+      const userRef = doc(db, "users", currentUser.uid);
+      const snap = await getDoc(userRef);
+      if (snap.exists()) {
+        const bal = Number(snap.data().walletBalance || 0).toFixed(2);
+        document.getElementById('walletAmount').textContent = bal;
+        document.getElementById('walletHeader').textContent = bal;
+      }
+    }
+
+    document.getElementById('copyIdBtn').onclick = () => {
+      const idField = document.getElementById('profileId');
+      idField.select();
+      idField.setSelectionRange(0, 99999);
+      navigator.clipboard.writeText(idField.value).then(() => {
+        const originalText = document.getElementById('copyIdBtn').textContent;
+        document.getElementById('copyIdBtn').textContent = "تم النسخ!";
+        setTimeout(() => document.getElementById('copyIdBtn').textContent = originalText, 2000);
+      });
+    };
+
+    function getMediaHtml(url) {
+      if (!url) return `<img src="https://placehold.co/100" class="plan-media">`;
+      if (url.includes('.mp4')) {
+        return `<video src="${url}" class="plan-media" autoplay loop muted playsinline></video>`;
+      }
+      return `<img src="${url}" class="plan-media">`;
+    }
+
+    async function loadPlans() {
+      const container = document.getElementById('plansContainer');
+      container.innerHTML = '<div class="muted">جار التحميل...</div>';
+      try {
+        const q = query(collection(db, "plans"), where("active", "==", true), orderBy("createdAt", "desc"));
+        const snap = await getDocs(q);
+        container.innerHTML = '';
+        if (snap.empty) { container.innerHTML = '<div class="muted">لا توجد باقات حالياً.</div>'; return; }
+        
+        snap.forEach(d => {
+          const data = d.data();
+          const div = document.createElement('div');
+          div.className = 'plan-card animate__animated animate__zoomIn';
+          const mediaContent = getMediaHtml(data.imageUrl);
+
+          div.innerHTML = `
+            ${mediaContent}
+            <div class="plan-info">
+              <div class="plan-title">${data.title}</div>
+              <div class="plan-details">
+                <span>💰 السعر: ${data.price}$</span>
+                <span>📈 ربح: ${data.dailyProfit}$</span>
+              </div>
+              <div class="plan-details" style="margin-top:6px;">
+                <span>⏳ المدة: ${data.durationDays} يوم</span>
+              </div>
+            </div>
+            <button class="btn-main" onclick="buyPlan('${d.id}')" style="width:auto; padding:8px 16px; font-size:12px; box-shadow:none;">شراء</button>
+          `;
+          container.appendChild(div);
+        });
+      } catch (e) {
+        document.getElementById('plansMsg').innerHTML = `<span style="color:orange">تنبيه: تأكد من الفهرس (Index).</span>`;
+      }
+    }
+
+    window.buyPlan = async (planId) => {
+      if (!currentUser) return;
+      if(!confirm("تأكيد الشراء؟")) return;
+      try {
+        const planSnap = await getDoc(doc(db, "plans", planId));
+        if(!planSnap.exists()) return alert("خطأ في الباقة");
+        const plan = planSnap.data();
+        const userRef = doc(db, "users", currentUser.uid);
+        const userSnap = await getDoc(userRef);
+        const bal = userSnap.data().walletBalance || 0;
+        
+        if (bal < plan.price) return alert("رصيدك غير كاف!");
+        await updateDoc(userRef, { walletBalance: bal - plan.price });
+        await addDoc(collection(db, "user_plans"), {
+          userId: currentUser.uid,
+          planId: planId,
+          title: plan.title,
+          dailyProfit: Number(plan.dailyProfit),
+          durationDays: Number(plan.durationDays),
+          remainingDays: Number(plan.durationDays),
+          active: true,
+          startAt: serverTimestamp(),
+          price: Number(plan.price)
+        });
+        alert("تم الشراء بنجاح!");
+        refreshUserData();
+        loadMyInvestments();
+      } catch(e) { console.log(e); alert("حدث خطأ"); }
+    };
+
+    async function loadMyInvestments() {
+      const container = document.getElementById('myInvestments');
+      if(!currentUser) return;
+      try {
+        const q = query(collection(db, "user_plans"), where("userId", "==", currentUser.uid), orderBy("startAt", "desc"));
+        const snap = await getDocs(q);
+        container.innerHTML = '';
+        if(snap.empty) { container.innerHTML = '<div class="muted" style="text-align:center;">لا توجد استثمارات.</div>'; return; }
+        
+        snap.forEach(d => {
+          const data = d.data();
+          const isActive = data.active && data.remainingDays > 0;
+          const div = document.createElement('div');
+          div.className = 'invest-item animate__animated animate__fadeInLeft';
+          div.innerHTML = `
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+              <strong>${data.title}</strong>
+              <span style="font-size:11px; padding:2px 8px; background:${isActive?'#166534':'#334155'}; border-radius:10px;">${isActive?'نشط 🟢':'منتهي 🔴'}</span>
+            </div>
+            <div class="muted">المتبقي: ${data.remainingDays} يوم | الربح اليومي: ${data.dailyProfit}$</div>
+            <button class="btn-secondary" onclick="collectProfit('${d.id}')" ${!isActive?'disabled':''} style="margin-top:10px; font-size:13px;">استلام الربح اليومي 💵</button>
+          `;
+          container.appendChild(div);
+        });
+      } catch(e) { console.log(e); }
+    }
+
+    window.collectProfit = async (invId) => {
+      try {
+        const invRef = doc(db, "user_plans", invId);
+        const invSnap = await getDoc(invRef);
+        const inv = invSnap.data();
+        const today = new Date().toISOString().slice(0,10);
+        let lastRun = inv.lastRunDate ? inv.lastRunDate.toDate().toISOString().slice(0,10) : null;
+        if(lastRun === today) return alert("تم استلام الربح اليوم مسبقاً.");
+        
+        const userRef = doc(db, "users", currentUser.uid);
+        const userSnap = await getDoc(userRef);
+        await updateDoc(userRef, { walletBalance: (userSnap.data().walletBalance||0) + inv.dailyProfit });
+        await updateDoc(invRef, { remainingDays: inv.remainingDays - 1, lastRunDate: serverTimestamp(), active: (inv.remainingDays - 1 > 0) });
+        alert("تم إضافة الأرباح!");
+        refreshUserData();
+        loadMyInvestments();
+      } catch(e) { alert("حدث خطأ"); }
+    };
+
+    document.getElementById('sendDepositMsgBtn').onclick = async () => {
+      const msg = document.getElementById('depositMessage').value;
+      if(!msg) return alert("اكتب التفاصيل");
+      await addDoc(collection(db, "deposit_requests"), {
+        userId: currentUser.uid,
+        userName: currentUser.displayName,
+        message: msg,
+        status: "new",
+        createdAt: serverTimestamp()
+      });
+      alert("تم إرسال طلب السحب للإدارة");
+      document.getElementById('depositMessage').value = "";
+    };
+
+    loginBtn.onclick = async () => {
+      try {
+        await signInWithEmailAndPassword(auth, document.getElementById('authEmail').value, document.getElementById('authPassword').value);
+      } catch(e) { authMsg.textContent = "خطأ في الدخول: " + e.message; authMsg.style.color="#ef4444"; }
+    };
+    
+    doRegisterBtn.onclick = async () => {
+      try {
+        const cred = await createUserWithEmailAndPassword(auth, document.getElementById('authEmail').value, document.getElementById('authPassword').value);
+        await updateProfile(cred.user, { displayName: document.getElementById('authName').value });
+        await ensureUserDoc(cred.user);
+      } catch(e) { authMsg.textContent = "خطأ في التسجيل: " + e.message; authMsg.style.color="#ef4444"; }
+    };
+
+    document.getElementById('logoutBtn').onclick = () => signOut(auth);
+
+    onAuthStateChanged(auth, async (user) => {
+      currentUser = user;
+      if (user) {
+        authScreen.style.display = 'none';
+        await ensureUserDoc(user);
+        refreshUserData();
+        loadPlans();
+        loadMyInvestments();
+      } else {
+        authScreen.style.display = 'flex';
+      }
+    });
+  </script>
+</body>
+</html>
