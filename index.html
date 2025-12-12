@@ -23,7 +23,19 @@
       display: flex; flex-direction: column;
     }
 
-    .app-content { flex: 1; overflow-y: auto; padding: 16px; padding-bottom: 90px; scroll-behavior: smooth; }
+    /* شريط الاشعارات الوهمي */
+    .ticker-wrap {
+      position: fixed; top: 0; left: 0; width: 100%; height: 30px;
+      background: rgba(0, 0, 0, 0.8); border-bottom: 1px solid #334155;
+      z-index: 2000; overflow: hidden; display: flex; align-items: center;
+      font-size: 11px; white-space: nowrap; pointer-events: none;
+    }
+    .ticker-item {
+        display: inline-block; padding: 0 20px; color: #fff; animation: slideInRight 1s ease-out;
+    }
+    @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    .app-content { flex: 1; overflow-y: auto; padding: 16px; padding-top: 40px; padding-bottom: 90px; scroll-behavior: smooth; }
     .page-section { display: none; }
     .page-section.active { display: block; animation: fadeInUp 0.5s ease-in-out; }
 
@@ -125,7 +137,7 @@
     .st-approved { background: rgba(34, 197, 94, 0.2); color: #4ade80; } 
     .st-rejected { background: rgba(239, 68, 68, 0.2); color: #f87171; }
 
-    /* نافذة التنبيهات المخصصة (الجميلة) */
+    /* نافذة التنبيهات المخصصة */
     .custom-alert-modal {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0,0,0,0.85); z-index: 4000;
@@ -141,6 +153,17 @@
     .alert-error { border-color: #ef4444; }
 
     #authScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; padding: 25px; display: flex; flex-direction: column; justify-content: center; }
+    
+    /* تنسيقات خاصة بالفريق */
+    .team-stat-box {
+        background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; text-align: center; flex: 1;
+        border: 1px solid rgba(255,255,255,0.05);
+    }
+    .level-card {
+        background: #1e293b; padding: 10px; border-radius: 8px; margin-bottom: 8px; font-size: 12px;
+        border-right: 3px solid #f59e0b;
+    }
+    .level-locked { opacity: 0.5; border-right-color: #64748b; }
   </style>
 </head>
 <body>
@@ -148,6 +171,10 @@
   <div id="loadingOverlay">
     <div class="loader"></div>
     <div class="muted" style="margin-top:15px; color:#f59e0b;">جارِ فحص البيانات وتأمين الاتصال...</div>
+  </div>
+
+  <div id="tickerWrap" class="ticker-wrap" style="display:none;">
+     <div id="tickerContent" class="ticker-item"></div>
   </div>
 
   <div id="miningModal" class="mining-modal">
@@ -186,9 +213,11 @@
     <div class="field animate__animated animate__fadeInUp" id="nameFieldBox" style="display:none;"><label>Name</label><input type="text" id="authName"></div>
     <div class="animate__animated animate__fadeInUp">
       <button id="loginBtn" class="btn-main" style="margin-bottom:10px;">دخول</button>
-      <button id="showRegisterBtn" class="btn-secondary">حساب جديد</button>
+      <button id="showRegisterBtn" class="btn-secondary" style="margin-bottom:10px;">حساب جديد</button>
       <button id="doRegisterBtn" class="btn-main" style="display:none; margin-bottom:10px;">إنشاء حساب</button>
-      <button id="backToLoginBtn" class="btn-secondary" style="display:none;">عودة</button>
+      <button id="backToLoginBtn" class="btn-secondary" style="display:none; margin-bottom:10px;">عودة</button>
+      
+      <button id="guestLoginBtn" class="btn-secondary" style="background:transparent; border:1px solid #334155; color:#94a3b8;">تصفح كزائر 🕵️</button>
     </div>
     <p id="authMsg" style="text-align:center; margin-top:15px; font-size:12px; color:#ef4444;"></p>
   </div>
@@ -245,37 +274,89 @@
 
     <div id="tab-profile" class="page-section animate__animated animate__fadeIn">
       <div class="card">
-        <div class="field">
-          <label style="color:#f59e0b;">🆔 معرف المستخدم (اضغط للنسخ)</label>
-          <div style="position:relative;">
-            <input type="text" id="profileId" readonly onclick="copyId()" style="cursor:copy; text-align:center; letter-spacing:1px; background:#0f172a; border-color:#f59e0b;">
-            <span style="position:absolute; left:10px; top:12px; font-size:18px;">📋</span>
-          </div>
+         <div id="guestProfileMsg" style="display:none; text-align:center; padding:20px;">
+             <div style="font-size:40px; margin-bottom:10px;">🔒</div>
+             <p style="color:#ef4444; font-weight:bold;">أنت تتصفح كزائر</p>
+             <p class="muted">يجب تسجيل الدخول لعرض البيانات والربح.</p>
+             <button onclick="location.reload()" class="btn-main" style="margin-top:15px;">تسجيل الدخول</button>
+         </div>
+
+         <div id="userProfileContent">
+            <div style="background:#0f172a; padding:15px; border-radius:12px; border:1px solid #f59e0b; margin-bottom:15px;">
+                <label style="color:#f59e0b; font-weight:bold; display:block; margin-bottom:8px;">🔗 رابط الدعوة الخاص بك</label>
+                <div style="display:flex; gap:5px;">
+                   <input type="text" id="referralLink" readonly style="font-size:11px; color:#94a3b8; background:#000;" value="جاري التحميل...">
+                   <button onclick="copyReferral()" class="btn-main" style="width:50px; font-size:18px;">📋</button>
+                </div>
+                <p class="muted" style="margin-top:8px; font-size:10px;">شارك الرابط لتربح عمولات من الفريق.</p>
+            </div>
+
+            <h3 style="font-size:14px; margin-bottom:10px;">👥 فريقي</h3>
+            <div style="display:flex; gap:10px; margin-bottom:15px;">
+                <div class="team-stat-box">
+                    <div style="font-size:20px; color:#fff; font-weight:bold;" id="teamCount">0</div>
+                    <div class="muted">عدد الفريق</div>
+                </div>
+                <div class="team-stat-box">
+                    <div style="font-size:20px; color:#4ade80; font-weight:bold;"><span id="teamEarnings">0.00</span>$</div>
+                    <div class="muted">أرباح الفريق</div>
+                </div>
+            </div>
+
+            <div class="level-card" id="lvl1Box">
+                <div style="font-weight:bold; color:#f59e0b;">المستوى الأول (1%)</div>
+                <div>المتطلبات: 2 أعضاء في الفريق.</div>
+                <div class="muted">تربح من: أول 10 أعضاء فقط قاموا بتشغيل الاستثمار.</div>
+            </div>
+            <div class="level-card level-locked" id="lvl2Box">
+                <div style="font-weight:bold; color:#f59e0b;">المستوى الثاني (2%)</div>
+                <div>المتطلبات: 5 أعضاء في الفريق.</div>
+                <div class="muted">تربح من: أول 20 عضو فقط.</div>
+            </div>
+             <div class="level-card level-locked" id="lvl3Box">
+                <div style="font-weight:bold; color:#f59e0b;">المستوى الثالث (3%)</div>
+                <div>المتطلبات: 10 أعضاء في الفريق.</div>
+                <div class="muted">تربح من: أول 50 عضو فقط.</div>
+            </div>
+            <div class="level-card level-locked" style="opacity:0.3;">
+                <div style="font-weight:bold;">المستوى الرابع - الخامس</div>
+                <div class="muted">قريباً...</div>
+            </div>
+            
+            <hr style="border:0; border-top:1px solid #334155; margin:15px 0;">
+
+            <div class="field">
+            <label style="color:#f59e0b;">🆔 معرف المستخدم (اضغط للنسخ)</label>
+            <div style="position:relative;">
+                <input type="text" id="profileId" readonly onclick="copyId()" style="cursor:copy; text-align:center; letter-spacing:1px; background:#0f172a; border-color:#f59e0b;">
+                <span style="position:absolute; left:10px; top:12px; font-size:18px;">📋</span>
+            </div>
+            </div>
+
+            <div class="field"><label>الاسم</label><input type="text" id="profileName" readonly></div>
+            <div class="field"><label>البريد الإلكتروني</label><input type="text" id="profileEmail" readonly style="direction:ltr;"></div>
+            <div class="field">
+            <label>كلمة المرور</label>
+            <div style="position:relative;">
+                <input type="password" id="profilePassword" value="********" data-real-pass="********" readonly style="direction:ltr; padding-left:40px;">
+                <span id="eyeBtn" style="position:absolute; left:10px; top:12px; cursor:pointer; font-size:18px;">👁️</span>
+            </div>
+            </div>
+
+            <div class="field">
+            <label>محفظة USDT TRC20 (تربط مرة واحدة)</label>
+            <div style="display:flex; gap:8px;">
+                <input type="text" id="profileWallet" placeholder="Txxxxxxxxxxxxxxxxxxxxxx" style="direction:ltr; font-family:monospace;">
+                <button id="saveWalletBtn" class="btn-main" style="width:70px; font-size:12px; display:none;">حفظ</button>
+            </div>
+            </div>
+
+            <button onclick="window.open('https://t.me/am_an12', '_blank')" class="btn-secondary" style="margin-top:15px; background:#229ED9;">
+                💬 مراسلة الدعم (Telegram)
+            </button>
+
+            <button id="logoutBtn" class="btn-danger" style="margin-top:15px;">تسجيل الخروج 🔒</button>
         </div>
-
-        <div class="field"><label>الاسم</label><input type="text" id="profileName" readonly></div>
-        <div class="field"><label>البريد الإلكتروني</label><input type="text" id="profileEmail" readonly style="direction:ltr;"></div>
-        <div class="field">
-           <label>كلمة المرور</label>
-           <div style="position:relative;">
-             <input type="password" id="profilePassword" readonly style="direction:ltr; padding-left:40px;">
-             <span id="eyeBtn" style="position:absolute; left:10px; top:12px; cursor:pointer; font-size:18px;">👁️</span>
-           </div>
-        </div>
-
-        <div class="field">
-          <label>محفظة USDT TRC20 (تربط مرة واحدة)</label>
-          <div style="display:flex; gap:8px;">
-            <input type="text" id="profileWallet" placeholder="Txxxxxxxxxxxxxxxxxxxxxx" style="direction:ltr; font-family:monospace;">
-            <button id="saveWalletBtn" class="btn-main" style="width:70px; font-size:12px; display:none;">حفظ</button>
-          </div>
-        </div>
-
-        <button onclick="window.open('https://t.me/am_an12', '_blank')" class="btn-secondary" style="margin-top:15px; background:#229ED9;">
-            💬 مراسلة الدعم (Telegram)
-        </button>
-
-        <button id="logoutBtn" class="btn-danger" style="margin-top:15px;">تسجيل الخروج 🔒</button>
       </div>
     </div>
   </div>
@@ -306,8 +387,16 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
     let currentUser = null;
+    let isGuest = false; // متغير وضع الزائر
 
-    // --- نظام التنبيهات المخصص (الجميل) ---
+    // --- منطق حفظ رابط الإحالة عند دخول الموقع ---
+    const urlParams = new URLSearchParams(window.location.search);
+    const refCode = urlParams.get('ref');
+    if (refCode) {
+        localStorage.setItem('referredBy', refCode);
+    }
+
+    // --- نظام التنبيهات المخصص ---
     window.showCustomAlert = (title, message, isError = false, redirectTab = null) => {
       const modal = document.getElementById('customAlertModal');
       const box = document.getElementById('customAlertBox');
@@ -344,11 +433,49 @@
       navigator.clipboard.writeText(idField.value).then(() => { showCustomAlert("نسخ","تم نسخ المعرف بنجاح!", false); });
     };
 
+    // نسخ رابط الإحالة
+    window.copyReferral = () => {
+        const link = document.getElementById('referralLink');
+        link.select(); link.setSelectionRange(0, 99999);
+        navigator.clipboard.writeText(link.value).then(() => { showCustomAlert("نسخ","تم نسخ رابط الدعوة!", false); });
+    };
+
+    // **التعديل هنا: تصحيح منطق التحقق في زر العين**
     document.getElementById('eyeBtn').onclick = () => {
       const passField = document.getElementById('profilePassword');
-      if (passField.value === "" || passField.value === "********") return showCustomAlert("تنبيه","كلمة المرور غير متاحة", true);
-      passField.type = "text";
-      setTimeout(() => { passField.type = "password"; }, 15000); 
+
+      if (!currentUser || isGuest) {
+          return showCustomAlert("تنبيه", "أنت غير مسجل أو لا تملك صلاحية.", true);
+      }
+      
+      const realPass = passField.getAttribute('data-real-pass');
+
+      if (passField.type === "password") {
+          // التحقق من أن كلمة المرور موجودة ومخزنة بالفعل (أي ليست القيمة الافتراضية "********")
+          if (realPass && realPass !== "********") {
+              passField.value = realPass; 
+              passField.type = "text";
+              
+              // إخفاء تلقائي بعد 15 ثانية
+              setTimeout(() => { 
+                  // نتحقق مرة أخرى للتأكد من أنها لم تتغير يدوياً
+                  if (passField.type === "text") { 
+                      passField.type = "password"; 
+                      // نضع القيمة الحقيقية لتجنب تصفير الحقل من المتصفح 
+                      // (وهو سيقوم بتشفيرها إلى نجوم تلقائياً)
+                      passField.value = realPass; 
+                  }
+              }, 15000); 
+          } else {
+               // إذا كانت القيمة الافتراضية، نظهر التنبيه
+               showCustomAlert("تنبيه", "كلمة المرور غير مخزنة أو غير متاحة. (قد تحتاج لتسجيل الدخول مجدداً لحفظها).", true);
+          }
+      } else {
+          // إذا كان مرئياً، نعود لوضع الإخفاء
+          passField.type = "password";
+          // نضع القيمة الحقيقية مرة أخرى لتجنب مشاكل المتصفح
+          if(realPass) passField.value = realPass; 
+      }
     };
 
     document.getElementById('saveWalletBtn').onclick = async () => {
@@ -382,13 +509,35 @@
 
     // التبويبات
     window.switchTab = function(tabName, el) {
+      if (isGuest && (tabName === 'profile' || tabName === 'invest' || tabName === 'wallet')) {
+          if(tabName === 'profile') {
+              // السماح بفتح البروفايل لكن عرض رسالة الزائر
+          } else {
+              // منع المحفظة والاستثمار
+             showCustomAlert("تنبيه", "أنت غير مسجل. يرجى تسجيل الدخول للوصول لهذه الصفحة.", true);
+             return; 
+          }
+      }
+      
       document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
       document.getElementById('tab-' + tabName).classList.add('active');
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
       el.classList.add('active');
+
       if(tabName === 'news') loadNews();
       if(tabName === 'plans') loadPlans();
-      if(tabName === 'invest') loadMyInvestments();
+      if(tabName === 'invest' && !isGuest) loadMyInvestments();
+      
+      // التعامل مع البروفايل للزائر
+      if (tabName === 'profile') {
+          if (isGuest) {
+              document.getElementById('userProfileContent').style.display = 'none';
+              document.getElementById('guestProfileMsg').style.display = 'block';
+          } else {
+              document.getElementById('userProfileContent').style.display = 'block';
+              document.getElementById('guestProfileMsg').style.display = 'none';
+          }
+      }
     };
 
     // --- سجل السحوبات ---
@@ -416,12 +565,12 @@
     };
     window.closeHistoryModal = () => { document.getElementById('withdrawHistoryModal').style.display = 'none'; };
 
-    // --- السحب (بالتعديلات الجديدة) ---
+    // --- السحب ---
     document.getElementById('sendDepositMsgBtn').onclick = async () => {
+      if(isGuest) return showCustomAlert("تنبيه", "أنت غير مسجل", true);
       const amountInput = document.getElementById('withdrawAmount').value;
       const statusDiv = document.getElementById('depositMsgStatus');
 
-      // 1. التأكد من ادخال المبلغ
       if(!amountInput) { showCustomAlert("خطأ", "يرجى إدخال المبلغ المراد سحبه", true); return; }
       const amount = Number(amountInput);
       if (amount <= 0) { showCustomAlert("خطأ", "المبلغ غير صحيح", true); return; }
@@ -429,28 +578,24 @@
       statusDiv.textContent = "جارِ المعالجة...";
 
       try {
-        // 2. جلب بيانات المستخدم المحدثة (الرصيد + المحفظة)
         const userRef = doc(db, "users", currentUser.uid);
         const userSnap = await getDoc(userRef);
         const userData = userSnap.data();
         const currentBalance = userData.walletBalance || 0;
         const savedWallet = userData.walletAddress;
 
-        // 3. التحقق من وجود محفظة
         if (!savedWallet) {
           statusDiv.textContent = "";
           showCustomAlert("تنبيه", "يجب إضافة عنوان المحفظة في صفحة حسابي أولاً.", true, "profile");
           return;
         }
 
-        // 4. التحقق من الرصيد
         if (amount > currentBalance) {
           statusDiv.textContent = "";
           showCustomAlert("رصيد غير كافٍ", `رصيدك الحالي: ${currentBalance.toFixed(2)}$\nأنت تحاول سحب: ${amount}$`, true);
           return; 
         }
 
-        // 5. التحقق من الطلبات المعلقة
         const qCheck = query(collection(db, "deposit_requests"), where("userId", "==", currentUser.uid), where("status", "==", "new"));
         const snapCheck = await getDocs(qCheck);
         if (!snapCheck.empty) {
@@ -459,7 +604,6 @@
           return;
         }
 
-        // 6. الإرسال (استخدام المحفظة من البروفايل)
         const fullMessage = `طلب سحب مبلغ: ${amount}$ | على المحفظة: ${savedWallet}`;
         await addDoc(collection(db, "deposit_requests"), {
           userId: currentUser.uid, userName: currentUser.displayName,
@@ -476,7 +620,7 @@
     // --- تحميل استثماراتي ---
     async function loadMyInvestments() {
       const container = document.getElementById('myInvestments');
-      if(!currentUser) return;
+      if(!currentUser || isGuest) return;
       try {
         const q = query(collection(db, "user_plans"), where("userId", "==", currentUser.uid), orderBy("startAt", "desc"));
         const snap = await getDocs(q);
@@ -589,24 +733,82 @@
       } catch(e){ c.innerHTML="خطأ"; }
     }
 
+    // --- منطق الشراء واحتساب العمولات ---
     window.buyPlan = async (id) => {
+        if(isGuest) return showCustomAlert("تنبيه", "أنت غير مسجل. يرجى تسجيل الدخول للشراء.", true);
         if(!currentUser) return;
         if(!confirm("شراء الباقة؟")) return;
         try {
           const ps = await getDoc(doc(db, "plans", id)); const p = ps.data();
           const ur = doc(db, "users", currentUser.uid); const us = await getDoc(ur);
-          if((us.data().walletBalance||0) < p.price) return showCustomAlert("خطأ", "رصيدك غير كاف!", true);
-          await updateDoc(ur, { walletBalance: (us.data().walletBalance) - p.price });
+          const userData = us.data();
+
+          if((userData.walletBalance||0) < p.price) return showCustomAlert("خطأ", "رصيدك غير كاف!", true);
+          
+          // خصم المبلغ
+          await updateDoc(ur, { walletBalance: (userData.walletBalance) - p.price });
+          
+          // إضافة الباقة
           await addDoc(collection(db, "user_plans"), {
             userId: currentUser.uid, planId: id, title: p.title, dailyProfit: Number(p.dailyProfit),
             durationDays: Number(p.durationDays), remainingDays: Number(p.durationDays), active: true,
             startAt: serverTimestamp(), price: Number(p.price), miningTime: p.miningTime || 5000,
             lastRunDate: null 
           });
+
+          // --- منطق العمولة (5 مستويات) ---
+          if (userData.referredBy) {
+              await calculateAndDistributeCommission(userData.referredBy, p.price);
+          }
+
           showCustomAlert("نجاح", "تم الشراء بنجاح", false);
           refreshUserData(); loadMyInvestments();
-        } catch(e){ showCustomAlert("خطأ", "حدث خطأ", true); }
+        } catch(e){ console.log(e); showCustomAlert("خطأ", "حدث خطأ", true); }
     };
+
+    // دالة توزيع العمولة المعقدة
+    async function calculateAndDistributeCommission(uplineId, amountSpent) {
+        try {
+            const uplineRef = doc(db, "users", uplineId);
+            const uplineSnap = await getDoc(uplineRef);
+            if (!uplineSnap.exists()) return;
+            
+            const teamQuery = query(collection(db, "users"), where("referredBy", "==", uplineId));
+            const teamSnap = await getDocs(teamQuery);
+            const teamCount = teamSnap.size;
+
+            let percentage = 0;
+            let maxEarningsCount = 0; 
+
+            // تحديد المستوى بناءً على عدد الفريق
+            if (teamCount >= 10) {
+                percentage = 0.03; 
+                maxEarningsCount = 50; 
+            } else if (teamCount >= 5) {
+                percentage = 0.02; 
+                maxEarningsCount = 20;
+            } else if (teamCount >= 2) {
+                percentage = 0.01; 
+                maxEarningsCount = 10;
+            } else {
+                return; // لم يحقق شروط المستوى الأول
+            }
+            
+            // هنا نمنح العمولة إذا كانت النسبة أكبر من صفر
+            if(percentage > 0) {
+                 const commission = amountSpent * percentage;
+            
+                 // إضافة العمولة للأب لاين
+                 await updateDoc(uplineRef, {
+                     walletBalance: increment(commission),
+                     teamTotalEarnings: increment(commission)
+                 });
+            }
+
+        } catch (error) {
+            console.log("Error distributing commission:", error);
+        }
+    }
 
     // --- Auth & Register ---
     const loadingOverlay = document.getElementById('loadingOverlay');
@@ -617,26 +819,47 @@
     const doRegisterBtn = document.getElementById('doRegisterBtn');
     const nameFieldBox = document.getElementById('nameFieldBox');
     const authMsg = document.getElementById('authMsg');
+    const guestBtn = document.getElementById('guestLoginBtn');
 
-    showRegisterBtn.onclick = () => { loginBtn.style.display='none'; showRegisterBtn.style.display='none'; doRegisterBtn.style.display='block'; backToLoginBtn.style.display='block'; nameFieldBox.style.display='block'; authMsg.textContent=''; };
-    backToLoginBtn.onclick = () => { loginBtn.style.display='block'; showRegisterBtn.style.display='block'; doRegisterBtn.style.display='none'; backToLoginBtn.style.display='none'; nameFieldBox.style.display='none'; authMsg.textContent=''; };
+    showRegisterBtn.onclick = () => { loginBtn.style.display='none'; showRegisterBtn.style.display='none'; doRegisterBtn.style.display='block'; backToLoginBtn.style.display='block'; nameFieldBox.style.display='block'; authMsg.textContent=''; guestBtn.style.display='none'; };
+    backToLoginBtn.onclick = () => { loginBtn.style.display='block'; showRegisterBtn.style.display='block'; doRegisterBtn.style.display='none'; backToLoginBtn.style.display='none'; nameFieldBox.style.display='none'; authMsg.textContent=''; guestBtn.style.display='block'; };
+
+    // زر الزائر
+    guestBtn.onclick = () => {
+        isGuest = true;
+        currentUser = null;
+        authScreen.style.display = 'none';
+        loadingOverlay.style.display = 'none';
+        document.getElementById('userNameTag').innerText = "زائر";
+        loadNews();
+        loadPlans();
+        startFakeNotifications(); // تشغيل الاشعارات الوهمية
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.querySelector(`.nav-item[onclick*="news"]`).classList.add('active');
+        document.getElementById('tab-news').classList.add('active');
+
+    };
 
     async function ensureUserDoc(user) {
       const ur = doc(db, "users", user.uid);
       const s = await getDoc(ur);
       if (!s.exists()) {
+        const referredBy = localStorage.getItem('referredBy') || null;
         await setDoc(ur, { 
           name: user.displayName||"مستخدم", 
           email: user.email, 
           walletBalance: 0, 
           uid: user.uid, 
+          referredBy: referredBy,
+          teamTotalEarnings: 0,
           createdAt: serverTimestamp(),
         });
       }
     }
 
+    // **التعديل هنا: جلب وتخزين data-real-pass**
     async function refreshUserData() {
-        if(!currentUser) return;
+        if(!currentUser || isGuest) return;
         const s = await getDoc(doc(db,"users",currentUser.uid));
         if(s.exists()) {
             const data = s.data();
@@ -646,7 +869,29 @@
             document.getElementById('profileName').value = data.name;
             document.getElementById('profileId').value = data.uid;
             document.getElementById('profileEmail').value = data.email;
-            document.getElementById('profilePassword').value = data.password || "********";
+            
+            const userPassword = data.password || "********"; 
+            
+            // **المهم: تخزين كلمة المرور الحقيقية في سمة البيانات**
+            document.getElementById('profilePassword').value = userPassword; 
+            document.getElementById('profilePassword').setAttribute('data-real-pass', userPassword);
+
+            // بيانات الفريق
+            const teamEarn = data.teamTotalEarnings || 0;
+            document.getElementById('teamEarnings').innerText = teamEarn.toFixed(2);
+            // رابط الحالة
+            document.getElementById('referralLink').value = `${window.location.origin}/?ref=${data.uid}`;
+
+            // جلب عدد الفريق
+            const qTeam = query(collection(db, "users"), where("referredBy", "==", currentUser.uid));
+            const snapTeam = await getDocs(qTeam);
+            const count = snapTeam.size;
+            document.getElementById('teamCount').innerText = count;
+
+            // تحديث واجهة المستويات
+            if(count >= 2) document.getElementById('lvl1Box').style.borderColor = "#4ade80"; 
+            if(count >= 5) { document.getElementById('lvl2Box').classList.remove('level-locked'); document.getElementById('lvl2Box').style.borderColor = "#4ade80"; }
+            if(count >= 10) { document.getElementById('lvl3Box').classList.remove('level-locked'); document.getElementById('lvl3Box').style.borderColor = "#4ade80"; }
 
             const walletInput = document.getElementById('profileWallet');
             const saveBtn = document.getElementById('saveWalletBtn');
@@ -673,29 +918,81 @@
         const email = document.getElementById('authEmail').value;
         const pass = document.getElementById('authPassword').value;
         const name = document.getElementById('authName').value;
+        
+        if(!pass || pass.length < 6) {
+             authMsg.textContent = "يجب أن تكون كلمة المرور 6 أحرف على الأقل.";
+             return;
+        }
+
         const c = await createUserWithEmailAndPassword(auth, email, pass);
         await updateProfile(c.user, {displayName: name});
+        
+        const referredBy = localStorage.getItem('referredBy') || null;
+
         await setDoc(doc(db, "users", c.user.uid), {
-          name: name, email: email, password: pass, walletBalance: 0, uid: c.user.uid, createdAt: serverTimestamp()
+          name: name, email: email, password: pass, 
+          walletBalance: 0, uid: c.user.uid, 
+          referredBy: referredBy, teamTotalEarnings: 0,
+          createdAt: serverTimestamp()
         });
       } catch(e){ authMsg.textContent = e.message; } 
     };
 
-    document.getElementById('logoutBtn').onclick = () => signOut(auth);
+    document.getElementById('logoutBtn').onclick = () => {
+        if(isGuest) location.reload();
+        else signOut(auth);
+    };
 
     onAuthStateChanged(auth, async (user) => {
-      currentUser = user;
       if (user) {
+        currentUser = user;
+        isGuest = false;
         authScreen.style.display = 'none';
         await ensureUserDoc(user);
         await refreshUserData();
         await loadNews();
-        loadingOverlay.style.display = 'none';
-      } else {
-        loadingOverlay.style.display = 'none';
+        startFakeNotifications(); 
+      } else if (!isGuest) {
         authScreen.style.display = 'flex';
       }
+      
+      loadingOverlay.style.display = 'none'; 
+
+      if (document.querySelectorAll('.page-section.active').length === 0) {
+        document.getElementById('tab-news').classList.add('active');
+      }
     });
+
+    // --- نظام الاشعارات الوهمية ---
+    function startFakeNotifications() {
+        const wrap = document.getElementById('tickerWrap');
+        const content = document.getElementById('tickerContent');
+        wrap.style.display = 'flex';
+
+        const names = ["Ahmed", "Mohamed", "Ali", "Oled", "Sarah", "John", "Chris", "سعيد", "خالد", "يوسف", "عمر", "Mike"];
+        const actions = [
+            { txt: "سحب", color: "#ef4444" },
+            { txt: "إيداع", color: "#4ade80" }
+        ];
+
+        function showNext() {
+            const name = names[Math.floor(Math.random() * names.length)];
+            const act = actions[Math.floor(Math.random() * actions.length)];
+            const amount = Math.floor(Math.random() * (354 - 10 + 1)) + 10;
+            
+            content.style.display = 'none';
+            setTimeout(() => {
+                content.innerHTML = `🌏 قام المستخدم <span style="color:#f59e0b;font-weight:bold;">${name}</span> بعملية <span style="color:${act.color};">${act.txt}</span> بقيمة <span style="font-weight:bold;">${amount}$</span>`;
+                content.style.display = 'block';
+            }, 100);
+
+            const minutes = [2, 4, 6, 10]; 
+            const randomMin = minutes[Math.floor(Math.random() * minutes.length)];
+            setTimeout(showNext, randomMin * 60000); 
+        }
+        setTimeout(showNext, 5000); 
+    }
+
   </script>
 </body>
 </html>
