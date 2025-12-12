@@ -83,6 +83,7 @@
     .btn-main { background: linear-gradient(to bottom, #f59e0b, #d97706); color: #fff; }
     .btn-secondary { background: #334155; color: #e2e8f0; }
     .btn-danger { background: linear-gradient(to right, #ef4444, #b91c1c); color: #fff; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3); }
+    .btn-google { background: #4285F4; color: #fff; }
 
     /* تنسيق الأخبار */
     .news-card { background: #0f172a; border-radius: 16px; overflow: hidden; margin-bottom: 24px; border: 1px solid #1e293b; }
@@ -216,6 +217,8 @@
       <button id="showRegisterBtn" class="btn-secondary" style="margin-bottom:10px;">حساب جديد</button>
       <button id="doRegisterBtn" class="btn-main" style="display:none; margin-bottom:10px;">إنشاء حساب</button>
       <button id="backToLoginBtn" class="btn-secondary" style="display:none; margin-bottom:10px;">عودة</button>
+      
+      <button id="googleAuthBtn" class="btn-google" style="margin-bottom:10px;"><img src="https://img.icons8.com/color/18/ffffff/google-logo.png" style="margin-left:8px;"> الدخول عبر Google</button>
       
       <button id="guestLoginBtn" class="btn-secondary" style="background:transparent; border:1px solid #334155; color:#94a3b8;">تصفح كزائر 🕵️</button>
     </div>
@@ -372,7 +375,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
     import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, addDoc, getDocs, query, where, orderBy, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
-    import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+    import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAPdLvL9yTmGaGRjcmFrTKcKSamL_Zso_s",
@@ -386,6 +389,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
+    const googleProvider = new GoogleAuthProvider(); // تعريف مزود جوجل
     let currentUser = null;
     let isGuest = false; // متغير وضع الزائر
 
@@ -440,7 +444,7 @@
         navigator.clipboard.writeText(link.value).then(() => { showCustomAlert("نسخ","تم نسخ رابط الدعوة!", false); });
     };
 
-    // **التعديل هنا: تصحيح منطق التحقق في زر العين**
+    // **تصحيح منطق التحقق في زر العين**
     document.getElementById('eyeBtn').onclick = () => {
       const passField = document.getElementById('profilePassword');
 
@@ -462,7 +466,6 @@
                   if (passField.type === "text") { 
                       passField.type = "password"; 
                       // نضع القيمة الحقيقية لتجنب تصفير الحقل من المتصفح 
-                      // (وهو سيقوم بتشفيرها إلى نجوم تلقائياً)
                       passField.value = realPass; 
                   }
               }, 15000); 
@@ -820,9 +823,14 @@
     const nameFieldBox = document.getElementById('nameFieldBox');
     const authMsg = document.getElementById('authMsg');
     const guestBtn = document.getElementById('guestLoginBtn');
+    const googleAuthBtn = document.getElementById('googleAuthBtn'); // زر جوجل
 
-    showRegisterBtn.onclick = () => { loginBtn.style.display='none'; showRegisterBtn.style.display='none'; doRegisterBtn.style.display='block'; backToLoginBtn.style.display='block'; nameFieldBox.style.display='block'; authMsg.textContent=''; guestBtn.style.display='none'; };
-    backToLoginBtn.onclick = () => { loginBtn.style.display='block'; showRegisterBtn.style.display='block'; doRegisterBtn.style.display='none'; backToLoginBtn.style.display='none'; nameFieldBox.style.display='none'; authMsg.textContent=''; guestBtn.style.display='block'; };
+    showRegisterBtn.onclick = () => { 
+        loginBtn.style.display='none'; showRegisterBtn.style.display='none'; doRegisterBtn.style.display='block'; backToLoginBtn.style.display='block'; nameFieldBox.style.display='block'; authMsg.textContent=''; guestBtn.style.display='none'; googleAuthBtn.style.display='none';
+    };
+    backToLoginBtn.onclick = () => { 
+        loginBtn.style.display='block'; showRegisterBtn.style.display='block'; doRegisterBtn.style.display='none'; backToLoginBtn.style.display='none'; nameFieldBox.style.display='none'; authMsg.textContent=''; guestBtn.style.display='block'; googleAuthBtn.style.display='block';
+    };
 
     // زر الزائر
     guestBtn.onclick = () => {
@@ -852,12 +860,12 @@
           uid: user.uid, 
           referredBy: referredBy,
           teamTotalEarnings: 0,
+          // لا يتم تخزين كلمة المرور هنا لحسابات جوجل
           createdAt: serverTimestamp(),
         });
       }
     }
 
-    // **التعديل هنا: جلب وتخزين data-real-pass**
     async function refreshUserData() {
         if(!currentUser || isGuest) return;
         const s = await getDoc(doc(db,"users",currentUser.uid));
@@ -870,9 +878,8 @@
             document.getElementById('profileId').value = data.uid;
             document.getElementById('profileEmail').value = data.email;
             
+            // **كلمة المرور: إذا لم تكن موجودة (مثل الدخول عبر جوجل) تبقى القيمة الافتراضية**
             const userPassword = data.password || "********"; 
-            
-            // **المهم: تخزين كلمة المرور الحقيقية في سمة البيانات**
             document.getElementById('profilePassword').value = userPassword; 
             document.getElementById('profilePassword').setAttribute('data-real-pass', userPassword);
 
@@ -911,9 +918,25 @@
         }
     }
 
-    loginBtn.onclick = async () => { try { await signInWithEmailAndPassword(auth, document.getElementById('authEmail').value, document.getElementById('authPassword').value); } catch(e){ authMsg.textContent = "خطأ في البيانات"; } };
+    // **تحسين رسائل الخطأ في تسجيل الدخول**
+    loginBtn.onclick = async () => { 
+        authMsg.textContent = "";
+        try { 
+            await signInWithEmailAndPassword(auth, document.getElementById('authEmail').value, document.getElementById('authPassword').value); 
+        } catch(e){ 
+            if (e.code === 'auth/wrong-password') {
+                authMsg.textContent = "كلمة المرور خاطئة. يرجى المحاولة مرة أخرى.";
+            } else if (e.code === 'auth/user-not-found') {
+                authMsg.textContent = "المستخدم غير موجود. يرجى التأكد من الإيميل.";
+            } else {
+                authMsg.textContent = "خطأ في تسجيل الدخول. (تأكد من الإيميل والرمز)";
+            }
+        } 
+    };
     
+    // **تحسين رسائل الخطأ في التسجيل**
     doRegisterBtn.onclick = async () => { 
+      authMsg.textContent = "";
       try { 
         const email = document.getElementById('authEmail').value;
         const pass = document.getElementById('authPassword').value;
@@ -935,7 +958,24 @@
           referredBy: referredBy, teamTotalEarnings: 0,
           createdAt: serverTimestamp()
         });
-      } catch(e){ authMsg.textContent = e.message; } 
+      } catch(e){ 
+          if (e.code === 'auth/email-already-in-use') {
+              authMsg.textContent = "هذا الإيميل مستخدم مسبقاً. يرجى تسجيل الدخول أو استخدام إيميل آخر.";
+          } else {
+              authMsg.textContent = e.message;
+          }
+      } 
+    };
+
+    // **تسجيل الدخول عبر جوجل**
+    googleAuthBtn.onclick = async () => {
+        authMsg.textContent = "";
+        try {
+            const result = await signInWithPopup(auth, googleProvider);
+            // بمجرد نجاح الدخول، onAuthStateChanged سيهتم ببقية الإجراءات (ensureUserDoc)
+        } catch (error) {
+            authMsg.textContent = `فشل تسجيل الدخول عبر Google: ${error.message}`;
+        }
     };
 
     document.getElementById('logoutBtn').onclick = () => {
@@ -963,7 +1003,7 @@
       }
     });
 
-    // --- نظام الاشعارات الوهمية ---
+    // --- نظام الاشعارات الوهمية (تعديل الأرقام العشوائية) ---
     function startFakeNotifications() {
         const wrap = document.getElementById('tickerWrap');
         const content = document.getElementById('tickerContent');
@@ -978,7 +1018,11 @@
         function showNext() {
             const name = names[Math.floor(Math.random() * names.length)];
             const act = actions[Math.floor(Math.random() * actions.length)];
-            const amount = Math.floor(Math.random() * (354 - 10 + 1)) + 10;
+            
+            // **التعديل هنا: تحديد النطاق بين 10 و 80**
+            const MIN_AMOUNT = 10;
+            const MAX_AMOUNT = 80;
+            const amount = Math.floor(Math.random() * (MAX_AMOUNT - MIN_AMOUNT + 1)) + MIN_AMOUNT;
             
             content.style.display = 'none';
             setTimeout(() => {
