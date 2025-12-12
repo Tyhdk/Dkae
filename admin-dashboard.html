@@ -74,7 +74,7 @@
     .btn-danger { background: linear-gradient(to bottom, #ef4444, #dc2626); color: #fff; }
 
     /* إحصائيات */
-    .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px; }
     .stat-card { background: rgba(15, 23, 42, 0.4); border-radius: 14px; border: 1px solid #334155; padding: 12px; text-align: center; }
     .stat-value { font-size: 20px; font-weight: 800; color: #fff; }
 
@@ -83,6 +83,7 @@
     td { padding: 10px; background: rgba(30, 41, 59, 0.4); border-top: 1px solid #334155; border-bottom: 1px solid #334155; }
     td:first-child { border-right: 1px solid #334155; border-radius: 0 10px 10px 0; }
     td:last-child { border-left: 1px solid #334155; border-radius: 10px 0 0 10px; }
+    .table-header { font-weight: bold; color: #f59e0b; padding: 5px 10px; background: rgba(15, 23, 42, 0.6); }
 
     /* تفاصيل السحب */
     .wd-amount { font-size: 16px; color: #4ade80; font-weight: bold; }
@@ -115,7 +116,8 @@
         <div class="stats-grid">
           <div class="stat-card"><div>👥 المستخدمين</div><div class="stat-value" id="statTotalUsers">0</div></div>
           <div class="stat-card"><div>💰 إيداعات</div><div class="stat-value" style="color:#4ade80;" id="statTotalTopup">0</div></div>
-          <div class="stat-card"><div>⏳ سحوبات معلقة</div><div class="stat-value" style="color:#fb923c;" id="statPendingWithdraw">0</div></div>
+          <div class="stat-card"><div>💸 عمولات الفريق</div><div class="stat-value" style="color:#f59e0b;" id="statTotalCommission">0</div></div>
+          <div class="stat-card" style="grid-column: span 3; border-color: #fb923c;"><div style="font-size:14px; font-weight:bold;">⏳ سحوبات معلقة</div><div class="stat-value" id="statPendingWithdraw">0</div></div>
         </div>
       </div>
     </div>
@@ -157,12 +159,37 @@
 
     <div id="tab-users" class="page-section">
       <div class="card">
-        <h2>💎 شحن رصيد</h2>
-        <div class="field"><label>ID المستخدم</label><input type="text" id="topupUserIdInput"></div>
-        <div class="field"><label>المبلغ ($)</label><input type="number" id="topupAmountInput"></div>
-        <button id="topupBtn" class="btn-main">شحن</button>
-        <div id="topupMsg" class="muted"></div>
+        <h2>👥 إدارة المستخدمين و الإحالات</h2>
+        <div style="border-bottom: 1px dashed #334155; padding-bottom: 15px; margin-bottom: 15px;">
+            <div class="field"><label>ID المستخدم للشحن</label><input type="text" id="topupUserIdInput"></div>
+            <div class="field"><label>المبلغ ($)</label><input type="number" id="topupAmountInput"></div>
+            <button id="topupBtn" class="btn-main">شحن الرصيد</button>
+            <div id="topupMsg" class="muted"></div>
+        </div>
+        
+        <h3 style="margin-top:0;">قائمة الأعضاء 📜</h3>
+        <div id="usersListMsg" class="muted">جار تحميل المستخدمين...</div>
+        <table style="width:100%">
+            <thead>
+                <tr>
+                    <td class="table-header">ID/الاسم</td>
+                    <td class="table-header">العمولات</td>
+                    <td class="table-header">المحيل</td>
+                    <td class="table-header" style="text-align:center;">إدارة</td>
+                </tr>
+            </thead>
+            <tbody id="usersTableBody"></tbody>
+        </table>
       </div>
+    </div>
+    
+    <div id="userDetailsModal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:5000; display:none; justify-content:center; align-items:center;">
+        <div class="card animate__animated animate__zoomIn" style="max-width:350px; width:90%;">
+            <h3 id="modalUserName">تفاصيل المستخدم</h3>
+            <div id="modalContent">
+                </div>
+            <button class="btn-secondary" onclick="document.getElementById('userDetailsModal').style.display='none';" style="margin-top:15px;">إغلاق</button>
+        </div>
     </div>
 
     <div id="tab-withdraw" class="page-section">
@@ -182,7 +209,7 @@
   <div class="nav-item active" onclick="switchTab('home', this)"><span class="nav-icon">📊</span></div>
   <div class="nav-item" onclick="switchTab('news', this)"><span class="nav-icon">📰</span></div>
   <div class="nav-item" onclick="switchTab('plans', this)"><span class="nav-icon">🚀</span></div>
-  <div class="nav-item" onclick="switchTab('users', this)"><span class="nav-icon">💎</span></div>
+  <div class="nav-item" onclick="switchTab('users', this)"><span class="nav-icon">👥</span></div>
   <div class="nav-item" onclick="switchTab('withdraw', this)"><span class="nav-icon">📤</span></div>
 </nav>
 
@@ -231,9 +258,12 @@
     if(tabName==='news') loadNews();
     if(tabName==='plans') loadPlans();
     if(tabName==='withdraw') loadWithdrawRequests();
+    if(tabName==='users') loadUsers(); // تحميل قائمة المستخدمين
   };
 
   // Auth
+  document.getElementById('logoutBtn').onclick = () => { location.reload(); };
+  
   setTimeout(() => {
     const pass = prompt("رمز الأدمن:");
     if (pass === ADMIN_PASSWORD) {
@@ -347,16 +377,133 @@
   document.getElementById('topupBtn').onclick = async () => {
     const uid = document.getElementById('topupUserIdInput').value;
     const amt = Number(document.getElementById('topupAmountInput').value);
-    if(!uid || !amt) return alert("خطأ");
+    if(!uid || !amt || amt <= 0) return alert("يرجى إدخال ID صحيح ومبلغ أكبر من صفر.");
+    
+    document.getElementById('topupMsg').innerText = "جاري الشحن...";
     try {
       const uRef = doc(db,"users",uid);
       const snap = await getDoc(uRef);
-      if(!snap.exists()) return alert("مستخدم غير موجود");
+      if(!snap.exists()) {
+        document.getElementById('topupMsg').innerText = "خطأ: مستخدم غير موجود";
+        return;
+      }
       await updateDoc(uRef, { walletBalance: (snap.data().walletBalance||0) + amt });
       await addDoc(collection(db,"wallet_topups"), {userId:uid, amount:amt, createdAt:serverTimestamp()});
-      alert("تم الشحن");
-    } catch(e){ alert("خطأ"); }
+      document.getElementById('topupMsg').innerText = `تم شحن ${amt}$ للمستخدم بنجاح.`;
+      loadStats();
+    } catch(e){ 
+      document.getElementById('topupMsg').innerText = "خطأ في الاتصال بقاعدة البيانات."; 
+    }
   };
+
+  // ** منطق المستخدمين والإحالات الجديد **
+
+  const usersCache = {}; // لتخزين بيانات المستخدمين لمنع تكرار الجلب
+
+  async function loadUsers() {
+    const tableBody = document.getElementById('usersTableBody');
+    const msg = document.getElementById('usersListMsg');
+    msg.innerText = "جار تحميل المستخدمين...";
+    tableBody.innerHTML = '';
+    
+    try {
+      // جلب جميع المستخدمين
+      const q = query(collection(db, "users"), orderBy("createdAt", "desc"));
+      const snap = await getDocs(q);
+      
+      if (snap.empty) {
+        msg.innerText = "لا يوجد مستخدمون مسجلون.";
+        return;
+      }
+      
+      let allUsers = [];
+      snap.forEach(d => {
+        const data = d.data();
+        usersCache[d.id] = data; // تخزين البيانات في الكاش
+        allUsers.push({ id: d.id, ...data });
+      });
+
+      // جلب أسماء المحيلين (Referred By Names) مرة واحدة
+      const uidsToFetch = allUsers.map(u => u.referredBy).filter(id => id && !usersCache[id]);
+      
+      // هنا يجب جلب أسماء المحيلين، ولكن لتبسيط الكود وحل المشكلة بسرعة:
+      // سنستخدم دالة مساعدة للحصول على الاسم لاحقاً.
+      
+      tableBody.innerHTML = '';
+      allUsers.forEach(u => {
+        const earnings = Number(u.teamTotalEarnings || 0).toFixed(2);
+        const refId = u.referredBy || '-';
+        
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>
+            <div style="color:#f59e0b; font-weight:bold; font-size:13px;">${u.uid.substring(0, 8)}...</div>
+            <div class="muted" style="font-size:11px;">${u.name || u.email}</div>
+          </td>
+          <td><span style="color:#4ade80;">${earnings}$</span></td>
+          <td><span class="muted">${refId.substring(0, 8)}...</span></td>
+          <td style="text-align:center;">
+            <button class="btn-secondary" style="width:auto; padding:5px 10px; font-size:11px;" onclick="showUserDetails('${u.uid}')">تفاصيل</button>
+          </td>
+        `;
+        tableBody.appendChild(row);
+      });
+      
+      msg.innerText = `تم تحميل ${allUsers.length} مستخدم.`;
+      
+    } catch(e) {
+      msg.innerText = "خطأ في تحميل بيانات المستخدمين: " + e.message;
+      console.error(e);
+    }
+  }
+
+  window.showUserDetails = async (uid) => {
+      const modal = document.getElementById('userDetailsModal');
+      const nameHeader = document.getElementById('modalUserName');
+      const content = document.getElementById('modalContent');
+      content.innerHTML = 'جار التحميل...';
+      modal.style.display = 'flex';
+      
+      try {
+          const userData = usersCache[uid] || (await getDoc(doc(db, "users", uid))).data();
+          if (!userData) throw new Error("بيانات المستخدم غير موجودة");
+
+          // جلب تفاصيل المحيل (Upline User)
+          let referredByName = 'لا يوجد محيل';
+          if (userData.referredBy) {
+              const refSnap = await getDoc(doc(db, "users", userData.referredBy));
+              if (refSnap.exists()) {
+                  referredByName = `${refSnap.data().name} (${userData.referredBy.substring(0, 6)}...)`;
+              } else {
+                  referredByName = `${userData.referredBy.substring(0, 8)}... (محذوف)`;
+              }
+          }
+
+          // جلب أعضاء فريق هذا المستخدم (Downline Users)
+          const teamQuery = query(collection(db, "users"), where("referredBy", "==", uid));
+          const teamSnap = await getDocs(teamQuery);
+          const teamCount = teamSnap.size;
+          
+          nameHeader.innerText = `👤 ${userData.name || 'مستخدم غير مسمى'}`;
+
+          content.innerHTML = `
+            <div style="font-size:13px; line-height:2;">
+                <p><strong>الرصيد:</strong> <span style="color:#4ade80;">${Number(userData.walletBalance || 0).toFixed(2)}$</span></p>
+                <p><strong>إجمالي العمولات:</strong> <span style="color:#f59e0b;">${Number(userData.teamTotalEarnings || 0).toFixed(2)}$</span></p>
+                <p><strong>أعضاء الفريق:</strong> <span>${teamCount} عضو</span></p>
+                <p><strong>المحيل (Up-line):</strong> <span class="muted">${referredByName}</span></p>
+                <p><strong>المعرف (ID):</strong> <span class="muted" style="font-size:11px; word-break:break-all;">${userData.uid}</span></p>
+                <p><strong>الإيميل:</strong> <span class="muted">${userData.email}</span></p>
+                <p><strong>كلمة السر المخزنة:</strong> <span class="muted">${userData.password || 'غير مخزنة'}</span></p>
+                <p><strong>محفظة USDT:</strong> <span class="wd-wallet" style="cursor:default; font-size:11px;">${userData.walletAddress || 'غير محددة'}</span></p>
+            </div>
+          `;
+          
+      } catch(e) {
+          content.innerHTML = `<span style="color:red;">خطأ في جلب التفاصيل: ${e.message}</span>`;
+      }
+  }
+
 
   // Helpers
   window.delDoc = async (c,id) => { if(confirm("حذف؟")) { await deleteDoc(doc(db,c,id)); if(c==='news') loadNews(); } };
@@ -367,10 +514,15 @@
     
     const t = await getDocs(collection(db,"wallet_topups"));
     let sumT = 0; t.forEach(d=> sumT+=d.data().amount||0);
-    document.getElementById('statTotalTopup').innerText = sumT;
+    document.getElementById('statTotalTopup').innerText = sumT.toFixed(2);
 
     const w = await getDocs(query(collection(db,"deposit_requests"), where("status","==","new")));
     document.getElementById('statPendingWithdraw').innerText = w.size;
+    
+    // ** إضافة إجمالي العمولات **
+    let totalCommission = 0;
+    u.forEach(d => { totalCommission += d.data().teamTotalEarnings || 0; });
+    document.getElementById('statTotalCommission').innerText = totalCommission.toFixed(2) + '$';
   }
 </script>
 </body>
