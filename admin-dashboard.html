@@ -3,149 +3,96 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>لوحة تحكم الأدمن - موبايل</title>
+  <title>لوحة الأدمن - Crypto Miner</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
-  
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 
   <style>
-    /* إعدادات الصفحة والخطوط */
+    /* إعدادات الصفحة */
     * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
     body {
-      margin: 0;
-      padding: 0;
-      background: radial-gradient(circle at top, #1e293b, #020617);
+      margin: 0; padding: 0;
+      background: radial-gradient(circle at top, #0f172a, #000000);
       color: #f9fafb;
       font-family: 'Cairo', sans-serif;
       height: 100vh;
       overflow: hidden;
-      display: flex;
-      flex-direction: column;
+      display: flex; flex-direction: column;
     }
     
-    .page {
-      flex: 1;
-      overflow-y: auto;
-      padding: 16px;
-      padding-bottom: 90px;
-      scroll-behavior: smooth;
-      max-width: 800px;
-      margin: 0 auto;
-      width: 100%;
-    }
-    
+    .page { flex: 1; overflow-y: auto; padding: 16px; padding-bottom: 90px; scroll-behavior: smooth; max-width: 800px; margin: 0 auto; width: 100%; }
     .page-section { display: none; }
     .page-section.active { display: block; animation: fadeInUp 0.4s ease-in-out; }
 
     /* البار السفلي */
     .bottom-nav {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 92%;
-      max-width: 600px;
-      height: 65px;
-      background: rgba(15, 23, 42, 0.95);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 20px;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      z-index: 1000;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+      width: 95%; height: 65px;
+      background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px;
+      display: flex; justify-content: space-around; align-items: center;
+      z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
     .nav-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: #64748b;
-      font-size: 10px;
-      cursor: pointer;
-      width: 25%;
-      height: 100%;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      color: #64748b; font-size: 9px; cursor: pointer; width: 20%; height: 100%;
       transition: all 0.3s;
     }
-    .nav-item.active { color: #22c55e; transform: translateY(-4px); font-weight: bold; }
+    .nav-item.active { color: #f59e0b; transform: translateY(-4px); font-weight: bold; }
     .nav-icon { font-size: 20px; margin-bottom: 3px; }
-
-    h1, h2, h3 { margin: 0 0 10px 0; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
-    .muted { font-size: 12px; color: #94a3b8; line-height: 1.6; }
 
     /* البطاقات */
     .card {
-      background: rgba(15, 23, 42, 0.7);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 20px;
-      padding: 18px;
-      margin-bottom: 16px;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      background: rgba(30, 41, 59, 0.5); backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px;
+      padding: 18px; margin-bottom: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
     }
+    h2, h3 { margin: 0 0 10px 0; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+    .muted { font-size: 12px; color: #94a3b8; line-height: 1.6; }
 
-    /* التخطيط */
-    .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-start; }
-    .pill {
-      display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px;
-      border-radius: 999px; background: rgba(30, 41, 59, 0.6);
-      border: 1px solid #334155; font-size: 12px; color: #cbd5e1;
-    }
-
-    /* الحقول */
     .field { margin-bottom: 12px; }
     .field label { display: block; font-size: 13px; margin-bottom: 6px; color: #cbd5e1; font-weight: 600; }
     .field input, .field textarea {
       width: 100%; padding: 12px; border-radius: 12px;
-      border: 2px solid #334155; background: #0f172a; color: #fff;
-      font-size: 14px; font-family: inherit; resize: none; transition: all 0.3s;
+      border: 2px solid #334155; background: #020617; color: #fff;
+      font-size: 14px; resize: none; transition: all 0.3s;
     }
-    .field input:focus, .field textarea:focus { border-color: #22c55e; box-shadow: 0 0 10px rgba(34, 197, 94, 0.2); }
+    .field input:focus, .field textarea:focus { border-color: #f59e0b; box-shadow: 0 0 10px rgba(245, 158, 11, 0.2); }
 
-    /* الأزرار */
+    .row { display: flex; gap: 12px; flex-wrap: wrap; }
     button {
       border: none; border-radius: 12px; padding: 12px; font-size: 14px;
-      cursor: pointer; font-family: inherit; width: 100%; font-weight: 700;
+      cursor: pointer; width: 100%; font-weight: 700;
       display: flex; align-items: center; justify-content: center; gap: 6px;
       transition: transform 0.1s;
     }
-    .btn-main { background: linear-gradient(to bottom, #22c55e, #16a34a); color: #fff; box-shadow: 0 4px 0 #14532d; }
-    .btn-main:active { transform: translateY(3px); box-shadow: none; }
-    
-    .btn-secondary { background: #334155; color: #e2e8f0; box-shadow: 0 4px 0 #1e293b; }
-    .btn-secondary:active { transform: translateY(3px); box-shadow: none; }
-    
-    .btn-danger { background: linear-gradient(to bottom, #ef4444, #dc2626); color: #fff; box-shadow: 0 4px 0 #991b1b; }
-    .btn-danger:active { transform: translateY(3px); box-shadow: none; }
+    .btn-main { background: linear-gradient(to bottom, #f59e0b, #d97706); color: #fff; }
+    .btn-secondary { background: #334155; color: #e2e8f0; }
+    .btn-danger { background: linear-gradient(to bottom, #ef4444, #dc2626); color: #fff; }
 
-    button:disabled { opacity: 0.6; cursor: not-allowed; filter: grayscale(1); box-shadow: none; }
-    .error { color: #f87171; font-size: 12px; margin-top: 5px; font-weight: bold; }
-    .success { color: #4ade80; font-size: 12px; margin-top: 5px; font-weight: bold; }
-
-    /* الإحصائيات */
+    /* إحصائيات */
     .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
-    .stat-card {
-      background: rgba(15, 23, 42, 0.4); border-radius: 14px; border: 1px solid #334155;
-      padding: 12px; text-align: center;
-    }
-    .stat-label { font-size: 11px; color: #94a3b8; }
+    .stat-card { background: rgba(15, 23, 42, 0.4); border-radius: 14px; border: 1px solid #334155; padding: 12px; text-align: center; }
     .stat-value { font-size: 20px; font-weight: 800; color: #fff; }
 
-    /* الجداول */
+    /* جداول */
     table { width: 100%; border-collapse: separate; border-spacing: 0 6px; font-size: 12px; }
-    th { padding: 8px; color: #94a3b8; text-align: right; }
     td { padding: 10px; background: rgba(30, 41, 59, 0.4); border-top: 1px solid #334155; border-bottom: 1px solid #334155; }
     td:first-child { border-right: 1px solid #334155; border-radius: 0 10px 10px 0; }
     td:last-child { border-left: 1px solid #334155; border-radius: 10px 0 0 10px; }
-    
-    .status-pill { padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: bold; }
-    .status-new { background: rgba(249, 115, 22, 0.2); color: #fb923c; }
-    .status-approved { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
-    .status-rejected { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+
+    /* تفاصيل السحب */
+    .wd-amount { font-size: 16px; color: #4ade80; font-weight: bold; }
+    .wd-wallet { 
+      font-family: monospace; background: rgba(0,0,0,0.3); 
+      padding: 6px; border-radius: 6px; color: #f59e0b; 
+      font-size: 11px; display: block; margin-top: 6px; 
+      word-break: break-all; cursor: pointer; border: 1px dashed rgba(245, 158, 11, 0.3);
+    }
+    .wd-wallet:active { background: rgba(245, 158, 11, 0.1); }
   </style>
 </head>
 <body>
@@ -153,100 +100,78 @@
 <div class="page">
   <div id="authNotice" class="card animate__animated animate__fadeInDown" style="text-align:center; margin-top:50px;">
     <h1>🔐 دخول الأدمن</h1>
-    <p class="muted">يجب إدخال الرمز السري</p>
-    <div id="authStatus" class="muted" style="margin-top:10px; color:#fbbf24;">جاري التحقق...</div>
+    <div id="authStatus" class="muted" style="margin-top:10px; color:#fbbf24;">أدخل الرمز للمتابعة...</div>
   </div>
 
   <div id="adminWrapper" style="display:none;">
-    
     <div class="row" style="justify-content:space-between; align-items:center; margin-bottom:15px;">
-      <div class="pill">
-        <span>👤 المدير:</span>
-        <span id="adminNameText" style="color:#fff;">Admin</span>
-      </div>
-      <button id="logoutBtn" class="btn-danger" style="width:auto; padding:6px 12px; font-size:11px;">🔒 خروج</button>
+      <h3 style="margin:0;">لوحة التحكم ⚙️</h3>
+      <button id="logoutBtn" class="btn-danger" style="width:auto; padding:6px 12px;">خروج</button>
     </div>
 
     <div id="tab-home" class="page-section active">
       <div class="card">
-        <h2>📊 ملخص النظام</h2>
+        <h2>📊 الإحصائيات</h2>
         <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-label">👥 المستخدمين</div>
-            <div class="stat-value" id="statTotalUsers">0</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">💰 الأموال (USDT)</div>
-            <div class="stat-value" style="color:#4ade80;" id="statTotalBalance">0.00</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">⏳ طلبات سحب</div>
-            <div class="stat-value" style="color:#fb923c;" id="statPendingWithdraw">0</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">📥 إجمالي الشحن</div>
-            <div class="stat-value" id="statTotalTopup">0.00</div>
-          </div>
+          <div class="stat-card"><div>👥 المستخدمين</div><div class="stat-value" id="statTotalUsers">0</div></div>
+          <div class="stat-card"><div>💰 إيداعات</div><div class="stat-value" style="color:#4ade80;" id="statTotalTopup">0</div></div>
+          <div class="stat-card"><div>⏳ سحوبات معلقة</div><div class="stat-value" style="color:#fb923c;" id="statPendingWithdraw">0</div></div>
         </div>
       </div>
-      
+    </div>
+
+    <div id="tab-news" class="page-section">
       <div class="card">
-        <h3 style="font-size:14px; color:#e2e8f0;">🕒 آخر عمليات الشحن</h3>
-        <div id="topupList" style="max-height:300px; overflow-y:auto; margin-top:10px; font-size:12px;"></div>
+        <h2>📰 نشر خبر</h2>
+        <div class="field"><label>الرابط (صورة/فيديو/Drive)</label><input type="text" id="newsMediaInput"></div>
+        <div class="field"><label>العنوان</label><input type="text" id="newsTitleInput"></div>
+        <div class="field"><label>الوصف</label><textarea id="newsDescInput" rows="2"></textarea></div>
+        <div class="row">
+          <div class="field" style="flex:1;"><label>لايكات</label><input type="number" id="newsLikesInput" value="300"></div>
+          <div class="field" style="flex:1;"><label>مشاهدات</label><input type="number" id="newsViewsInput" value="240"></div>
+        </div>
+        <button id="createNewsBtn" class="btn-main">نشر</button>
+        <div id="newsMsg" class="muted"></div>
       </div>
+      <div id="newsList" class="card"></div>
     </div>
 
     <div id="tab-plans" class="page-section">
       <div class="card">
-        <h2>🚀 إضافة باقة جديدة</h2>
-        <div class="field"><label>العنوان</label><input type="text" id="planTitleInput" placeholder="VIP Plan"></div>
-        <div class="field"><label>الوصف</label><textarea id="planDescInput" rows="2"></textarea></div>
-        <div class="field"><label>الصورة</label><input type="text" id="planImageInput"></div>
+        <h2>🚀 إضافة باقة</h2>
+        <div class="field"><label>العنوان</label><input type="text" id="planTitleInput"></div>
+        <div class="field"><label>صورة (Drive/Link)</label><input type="text" id="planImageInput"></div>
         <div class="row">
-          <div class="field" style="flex:1;"><label>السعر</label><input type="number" id="planPriceInput"></div>
-          <div class="field" style="flex:1;"><label>الربح</label><input type="number" id="planDailyProfitInput"></div>
+          <div class="field" style="flex:1;"><label>السعر ($)</label><input type="number" id="planPriceInput"></div>
+          <div class="field" style="flex:1;"><label>الربح ($)</label><input type="number" id="planDailyProfitInput"></div>
         </div>
         <div class="row">
-          <div class="field" style="flex:1;"><label>المدة</label><input type="number" id="planDurationInput"></div>
-          <div class="field" style="flex:1;"><label>الساعة</label><input type="number" id="planStartHourInput" placeholder="7"></div>
+          <div class="field" style="flex:1;"><label>المدة (يوم)</label><input type="number" id="planDurationInput"></div>
+          <div class="field" style="flex:1;"><label>وقت التعدين (ثانية)</label><input type="number" id="planMiningTimeInput" value="5"></div>
         </div>
-        <button id="createPlanBtn" class="btn-main">➕ نشر الباقة</button>
-        <div id="planMsg" class="muted" style="margin-top:8px;"></div>
+        <button id="createPlanBtn" class="btn-main">نشر الباقة</button>
+        <div id="planMsg" class="muted"></div>
       </div>
-
-      <div class="card">
-        <h3>📂 الباقات الحالية</h3>
-        <div id="plansList" style="max-height:400px; overflow-y:auto; font-size:12px;"></div>
-      </div>
+      <div id="plansList" class="card"></div>
     </div>
 
     <div id="tab-users" class="page-section">
       <div class="card">
-        <h2>💎 شحن يدوي</h2>
-        <p class="muted">إضافة رصيد للمستخدم عبر ID</p>
+        <h2>💎 شحن رصيد</h2>
         <div class="field"><label>ID المستخدم</label><input type="text" id="topupUserIdInput"></div>
-        <div class="field"><label>المبلغ (USDT)</label><input type="number" id="topupAmountInput"></div>
-        <div class="field"><label>ملاحظة</label><textarea id="topupNoteInput"></textarea></div>
-        <button id="topupBtn" class="btn-main">✅ تأكيد الشحن</button>
-        <div id="topupMsg" class="muted" style="margin-top:8px;"></div>
+        <div class="field"><label>المبلغ ($)</label><input type="number" id="topupAmountInput"></div>
+        <button id="topupBtn" class="btn-main">شحن</button>
+        <div id="topupMsg" class="muted"></div>
       </div>
     </div>
 
     <div id="tab-withdraw" class="page-section">
       <div class="card">
-        <h2>📤 طلبات السحب</h2>
-        <div id="withdrawMsg" class="muted" style="margin-bottom:10px;"></div>
-        <div style="overflow-x:auto;">
-          <table>
-            <thead>
-              <tr>
-                <th>التفاصيل</th>
-                <th>الإجراء</th>
-              </tr>
-            </thead>
-            <tbody id="withdrawTableBody"></tbody>
-          </table>
-        </div>
+        <h2>📤 طلبات السحب المعلقة</h2>
+        <div id="withdrawMsg" class="muted"></div>
+        <table style="width:100%">
+          <tbody id="withdrawTableBody"></tbody>
+        </table>
       </div>
     </div>
 
@@ -254,295 +179,198 @@
 </div>
 
 <nav class="bottom-nav" id="bottomNav" style="display:none;">
-  <div class="nav-item active" onclick="switchTab('home', this)">
-    <span class="nav-icon">📊</span>
-    <span>الرئيسية</span>
-  </div>
-  <div class="nav-item" onclick="switchTab('plans', this)">
-    <span class="nav-icon">🚀</span>
-    <span>الباقات</span>
-  </div>
-  <div class="nav-item" onclick="switchTab('users', this)">
-    <span class="nav-icon">💎</span>
-    <span>شحن</span>
-  </div>
-  <div class="nav-item" onclick="switchTab('withdraw', this)">
-    <span class="nav-icon">📤</span>
-    <span>سحوبات</span>
-  </div>
+  <div class="nav-item active" onclick="switchTab('home', this)"><span class="nav-icon">📊</span></div>
+  <div class="nav-item" onclick="switchTab('news', this)"><span class="nav-icon">📰</span></div>
+  <div class="nav-item" onclick="switchTab('plans', this)"><span class="nav-icon">🚀</span></div>
+  <div class="nav-item" onclick="switchTab('users', this)"><span class="nav-icon">💎</span></div>
+  <div class="nav-item" onclick="switchTab('withdraw', this)"><span class="nav-icon">📤</span></div>
 </nav>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-  import { getFirestore, doc, getDoc, updateDoc, collection, addDoc, getDocs, query, where, orderBy, limit, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, updateDoc, collection, addDoc, getDocs, query, where, orderBy, serverTimestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
   const firebaseConfig = {
-    apiKey: "AIzaSyAPdLvL9yTmGaGRjcmFrTKcKSamL_Zso_s",
-    authDomain: "sthmar-ff2e2.firebaseapp.com",
-    projectId: "sthmar-ff2e2",
-    storageBucket: "sthmar-ff2e2.firebasestorage.app",
-    messagingSenderId: "456664476578",
-    appId: "1:456664476578:web:3939cd5e00ba1b5a50e0fb"
+      apiKey: "AIzaSyAPdLvL9yTmGaGRjcmFrTKcKSamL_Zso_s",
+      authDomain: "sthmar-ff2e2.firebaseapp.com",
+      projectId: "sthmar-ff2e2",
+      storageBucket: "sthmar-ff2e2.firebasestorage.app",
+      messagingSenderId: "456664476578",
+      appId: "1:456664476578:web:3939cd5e00ba1b5a50e0fb"
   };
 
-  const app  = initializeApp(firebaseConfig);
-  const db   = getFirestore(app);
-
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
   const ADMIN_PASSWORD = "nasm1998";
 
+  // دالة الميديا الموحدة
+  function processMediaUrl(url) {
+    if (!url) return { type: 'image', src: 'https://placehold.co/100' };
+    if (url.includes('drive.google.com') || url.includes('docs.google.com')) {
+      let fileId = null; const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+      if (match && match[1]) fileId = match[1]; else { const u = new URL(url); fileId = u.searchParams.get("id"); }
+      if (fileId) return { type: 'iframe', src: `https://drive.google.com/file/d/${fileId}/preview` };
+    }
+    if (url.match(/\.(mp4|webm|ogg)$/i)) return { type: 'video', src: url };
+    return { type: 'image', src: url };
+  }
+  
+  function getMediaHTML(url, h="50px") {
+    const m = processMediaUrl(url);
+    if(m.type==='iframe') return `<iframe src="${m.src}" style="width:${h};height:${h};border:none;border-radius:8px;"></iframe>`;
+    if(m.type==='video') return `<video src="${m.src}" style="width:${h};height:${h};object-fit:cover;border-radius:8px;"></video>`;
+    return `<img src="${m.src}" style="width:${h};height:${h};object-fit:cover;border-radius:8px;">`;
+  }
+
+  // التبويبات
   window.switchTab = function(tabName, el) {
     document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
     document.getElementById('tab-' + tabName).classList.add('active');
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     el.classList.add('active');
+    if(tabName==='news') loadNews();
+    if(tabName==='plans') loadPlans();
+    if(tabName==='withdraw') loadWithdrawRequests();
   };
 
-  const authNotice = document.getElementById("authNotice");
-  const authStatus = document.getElementById("authStatus");
-  const adminWrapper = document.getElementById("adminWrapper");
-  const bottomNav = document.getElementById("bottomNav");
-  const logoutBtn = document.getElementById("logoutBtn");
-
-  const statTotalUsers = document.getElementById("statTotalUsers");
-  const statTotalBalance = document.getElementById("statTotalBalance");
-  const statPendingWithdraw = document.getElementById("statPendingWithdraw");
-  const statTotalTopup = document.getElementById("statTotalTopup");
-
-  const planTitleInput = document.getElementById("planTitleInput");
-  const planDescInput = document.getElementById("planDescInput");
-  const planImageInput = document.getElementById("planImageInput");
-  const planPriceInput = document.getElementById("planPriceInput");
-  const planDailyProfitInput = document.getElementById("planDailyProfitInput");
-  const planDurationInput = document.getElementById("planDurationInput");
-  const planStartHourInput = document.getElementById("planStartHourInput");
-  const createPlanBtn = document.getElementById("createPlanBtn");
-  const planMsg = document.getElementById("planMsg");
-  const plansList = document.getElementById("plansList");
-
-  const topupUserIdInput = document.getElementById("topupUserIdInput");
-  const topupAmountInput = document.getElementById("topupAmountInput");
-  const topupNoteInput = document.getElementById("topupNoteInput");
-  const topupBtn = document.getElementById("topupBtn");
-  const topupMsg = document.getElementById("topupMsg");
-  const topupList = document.getElementById("topupList");
-
-  const withdrawMsg = document.getElementById("withdrawMsg");
-  const withdrawTableBody = document.getElementById("withdrawTableBody");
-
-  logoutBtn.addEventListener("click", () => location.reload());
-
-  function askAdminPassword() {
-    const pass = prompt("أدخل رمز الأدمن:");
+  // Auth
+  setTimeout(() => {
+    const pass = prompt("رمز الأدمن:");
     if (pass === ADMIN_PASSWORD) {
-      authNotice.style.display = "none";
-      adminWrapper.style.display = "block";
-      bottomNav.style.display = "flex";
-      loadAllData();
-    } else {
-      authStatus.textContent = "الرمز خطأ.";
-      authStatus.className = "error";
-    }
-  }
+      document.getElementById('authNotice').style.display='none';
+      document.getElementById('adminWrapper').style.display='block';
+      document.getElementById('bottomNav').style.display='flex';
+      loadStats();
+    } else { document.getElementById('authStatus').innerText="رمز خاطئ"; }
+  }, 500);
 
-  setTimeout(askAdminPassword, 500);
+  // News Logic
+  document.getElementById('createNewsBtn').onclick = async () => {
+    const t = document.getElementById('newsTitleInput').value;
+    const d = document.getElementById('newsDescInput').value;
+    const m = document.getElementById('newsMediaInput').value;
+    const l = document.getElementById('newsLikesInput').value;
+    const v = document.getElementById('newsViewsInput').value;
+    if(!t) return alert('العنوان مطلوب');
+    await addDoc(collection(db,"news"), { title:t, description:d, mediaUrl:m, startLikes:Number(l), startViews:Number(v), createdAt:serverTimestamp() });
+    alert("تم النشر"); loadNews();
+  };
 
-  async function loadAllData() {
-    await loadStats();
-    await loadPlans();
-    await loadTopups();
-    await loadWithdrawRequests();
-  }
-
-  createPlanBtn.addEventListener("click", handleCreatePlan);
-  async function handleCreatePlan() {
-    planMsg.textContent = ""; planMsg.className = "muted";
-    const title = planTitleInput.value.trim();
-    const description = planDescInput.value.trim();
-    const imageUrl = planImageInput.value.trim();
-    const price = Number(planPriceInput.value);
-    const dailyProfit = Number(planDailyProfitInput.value);
-    const durationDays = Number(planDurationInput.value);
-    const startHour = Number(planStartHourInput.value);
-
-    if (!title || !price || !dailyProfit || !durationDays) { planMsg.textContent = "أكمل البيانات."; planMsg.className = "error"; return; }
-    createPlanBtn.disabled = true;
-
+  async function loadNews() {
+    const list = document.getElementById('newsList'); list.innerHTML='تحميل...';
     try {
-      await addDoc(collection(db, "plans"), {
-        title, description, imageUrl, price, dailyProfit, durationDays,
-        startHour: isNaN(startHour) ? 7 : startHour, active: true, createdAt: serverTimestamp()
-      });
-      planMsg.textContent = "تم النشر!"; planMsg.className = "success";
-      planTitleInput.value = ""; planDescInput.value = ""; planImageInput.value = "";
-      planPriceInput.value = ""; planDailyProfitInput.value = ""; planDurationInput.value = "";
-      await loadPlans();
-    } catch (err) { planMsg.textContent = "خطأ."; planMsg.className = "error"; }
-    finally { createPlanBtn.disabled = false; }
-  }
-
-  async function loadPlans() {
-    plansList.innerHTML = "جاري التحميل...";
-    try {
-      const q = query(collection(db, "plans"), orderBy("createdAt", "desc"));
-      const snap = await getDocs(q);
-      if (snap.empty) { plansList.innerHTML = "لا توجد باقات."; return; }
-      let html = "";
-      snap.forEach(d => {
-        const data = d.data();
-        const active = data.active === true;
-        html += `
-          <div style="border-bottom:1px solid rgba(255,255,255,0.1); padding:10px 0;">
-            <div style="display:flex; justify-content:space-between;">
-               <strong style="color:#fff;">${data.title}</strong>
-               ${active ? "<span class='status-pill status-approved'>مفعل</span>" : "<span class='status-pill status-rejected'>معطل</span>"}
-            </div>
-            <div class="muted">${data.price}$ | ربح: ${data.dailyProfit}$ | ${data.durationDays} يوم</div>
-            <button class="btn-secondary" style="margin-top:5px; padding:5px; width:auto; font-size:11px;" data-id="${d.id}" data-active="${active}">
-              ${active ? "تعطيل ❌" : "تفعيل ✅"}
-            </button>
-          </div>`;
-      });
-      plansList.innerHTML = html;
-      plansList.querySelectorAll("button").forEach(b => b.onclick = () => togglePlan(b.dataset.id, b.dataset.active === "true"));
-    } catch (e) { plansList.innerHTML = "خطأ."; }
-  }
-
-  async function togglePlan(id, currentState) {
-    await updateDoc(doc(db, "plans", id), { active: !currentState });
-    loadPlans();
-  }
-
-  topupBtn.addEventListener("click", handleTopup);
-  async function handleTopup() {
-    topupMsg.textContent = ""; topupMsg.className = "muted";
-    const userId = topupUserIdInput.value.trim();
-    const amount = Number(topupAmountInput.value);
-    const note = topupNoteInput.value.trim();
-
-    if (!userId || amount <= 0) { topupMsg.textContent = "بيانات غير صحيحة."; topupMsg.className = "error"; return; }
-    topupBtn.disabled = true;
-
-    try {
-      const userRef = doc(db, "users", userId);
-      const userSnap = await getDoc(userRef);
-      if (!userSnap.exists()) { topupMsg.textContent = "المستخدم غير موجود."; topupMsg.className = "error"; topupBtn.disabled = false; return; }
-
-      const oldBal = Number(userSnap.data().walletBalance || 0);
-      await updateDoc(userRef, { walletBalance: oldBal + amount });
-      await addDoc(collection(db, "wallet_topups"), { userId, amount, note, oldBalance: oldBal, newBalance: oldBal + amount, createdAt: serverTimestamp() });
-
-      topupMsg.textContent = "تم الشحن!"; topupMsg.className = "success";
-      topupUserIdInput.value=""; topupAmountInput.value=""; topupNoteInput.value="";
-      loadStats(); loadTopups();
-    } catch (e) { topupMsg.textContent = "خطأ."; topupMsg.className = "error"; }
-    finally { topupBtn.disabled = false; }
-  }
-
-  async function loadTopups() {
-    topupList.innerHTML = "تحميل...";
-    try {
-      const q = query(collection(db, "wallet_topups"), orderBy("createdAt", "desc"), limit(10));
-      const snap = await getDocs(q);
-      if (snap.empty) { topupList.innerHTML = "لا يوجد."; return; }
-      let html = "";
-      snap.forEach(d => {
-        const data = d.data();
-        html += `<div style="padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.1); color:#cbd5e1;">
-          <div style="color:#fff;">${data.userId}</div>
-          <div style="color:#4ade80;">+${data.amount} USDT</div>
+      const q = query(collection(db,"news"), orderBy("createdAt","desc"));
+      const s = await getDocs(q); list.innerHTML='';
+      s.forEach(d => {
+        const dt = d.data();
+        list.innerHTML += `<div style="border-bottom:1px solid #334155; padding:10px; display:flex; gap:10px; align-items:center;">
+          ${getMediaHTML(dt.mediaUrl)}
+          <div style="flex:1;"><b>${dt.title}</b><br><span class="muted">${dt.description}</span></div>
+          <button class="btn-danger" style="width:auto;padding:5px;" onclick="delDoc('news','${d.id}')">🗑️</button>
         </div>`;
       });
-      topupList.innerHTML = html;
-    } catch (e) { topupList.innerHTML = "خطأ."; }
+    } catch(e) { list.innerHTML="خطأ في التحميل"; }
   }
 
+  // Plans Logic (With Mining Time)
+  document.getElementById('createPlanBtn').onclick = async () => {
+    const t = document.getElementById('planTitleInput').value;
+    const img = document.getElementById('planImageInput').value;
+    const p = document.getElementById('planPriceInput').value;
+    const dp = document.getElementById('planDailyProfitInput').value;
+    const dur = document.getElementById('planDurationInput').value;
+    const mineTime = document.getElementById('planMiningTimeInput').value;
+
+    if(!t || !p) return alert("البيانات ناقصة");
+    
+    await addDoc(collection(db,"plans"), {
+      title:t, imageUrl:img, price:Number(p), dailyProfit:Number(dp),
+      durationDays:Number(dur), miningTime: Number(mineTime) * 1000, 
+      active:true, createdAt:serverTimestamp()
+    });
+    alert("تم إضافة الباقة"); loadPlans();
+  };
+
+  async function loadPlans() {
+    const list = document.getElementById('plansList'); list.innerHTML='تحميل...';
+    const s = await getDocs(query(collection(db,"plans"), orderBy("createdAt","desc")));
+    list.innerHTML='';
+    s.forEach(d => {
+      const dt = d.data();
+      list.innerHTML += `<div style="border-bottom:1px solid #334155; padding:10px; display:flex; gap:10px; align-items:center;">
+        ${getMediaHTML(dt.imageUrl)}
+        <div style="flex:1;"><b>${dt.title}</b><br><span class="muted">${dt.price}$ | ربح ${dt.dailyProfit}$ | ${dt.miningTime/1000} ثانية</span></div>
+        <button class="btn-secondary" style="width:auto;padding:5px;" onclick="togglePlan('${d.id}',${dt.active})">${dt.active?'تعطيل':'تفعيل'}</button>
+      </div>`;
+    });
+  }
+  window.togglePlan = async (id, st) => { await updateDoc(doc(db,"plans",id), {active:!st}); loadPlans(); };
+
+  // Withdraw Logic (Updated for new fields)
   async function loadWithdrawRequests() {
-    withdrawTableBody.innerHTML = "<tr><td colspan='2'>تحميل...</td></tr>";
+    const tb = document.getElementById('withdrawTableBody'); tb.innerHTML='<tr><td colspan="2">تحميل...</td></tr>';
     try {
-      const q = query(collection(db, "deposit_requests"), where("status", "==", "new"), orderBy("createdAt", "desc"));
-      const snap = await getDocs(q);
-      if (snap.empty) { withdrawTableBody.innerHTML = "<tr><td colspan='2'>لا يوجد طلبات.</td></tr>"; return; }
+      const q = query(collection(db,"deposit_requests"), where("status","==","new"), orderBy("createdAt","desc"));
+      const s = await getDocs(q);
+      if(s.empty) { tb.innerHTML='<tr><td colspan="2">لا توجد طلبات.</td></tr>'; return; }
       
-      withdrawTableBody.innerHTML = "";
-      snap.forEach(d => {
-        const data = d.data();
-        // نحاول قراءة المبلغ، إذا لم يكن موجوداً (في النسخ القديمة) نعرض 0
-        const amt = data.amount ? Number(data.amount).toFixed(2) : "غير محدد";
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
+      tb.innerHTML='';
+      s.forEach(d => {
+        const dt = d.data();
+        const amount = dt.amount ? `${dt.amount} $` : 'غير محدد';
+        const wallet = dt.walletAddress || 'لم يتم العثور على محفظة';
+        
+        const row = document.createElement('tr');
+        row.innerHTML = `
           <td>
-            <div style="color:#fb923c; font-weight:bold;">${amt} USDT</div>
-            <div style="font-size:10px; color:#94a3b8;">${data.userName || "مجهول"}</div>
-            <div class="muted">${data.message || "-"}</div>
+            <div class="wd-amount">${amount}</div>
+            <div class="muted">👤 ${dt.userName || dt.userId}</div>
+            <span class="wd-wallet" onclick="navigator.clipboard.writeText('${wallet}');alert('تم نسخ المحفظة: ${wallet}')">${wallet} 📋</span>
           </td>
-          <td style="vertical-align:middle; text-align:center;">
-            <button class="btn-main" style="padding:6px; margin-bottom:4px; font-size:10px;" onclick="handleWD('${d.id}', 'approve')">✔ موافقة</button>
-            <button class="btn-danger" style="padding:6px; font-size:10px;" onclick="handleWD('${d.id}', 'reject')">✖ رفض وإرجاع</button>
+          <td style="vertical-align:middle; width:80px;">
+            <button class="btn-main" style="margin-bottom:5px; background:#22c55e;" onclick="handleWD('${d.id}','approved')">✔</button>
+            <button class="btn-danger" onclick="handleWD('${d.id}','rejected')">✖</button>
           </td>
         `;
-        withdrawTableBody.appendChild(tr);
+        tb.appendChild(row);
       });
-    } catch (e) { 
-      console.error(e);
-      withdrawTableBody.innerHTML = "<tr><td colspan='2'>خطأ في التحميل.</td></tr>"; 
-    }
+    } catch(e) { tb.innerHTML=`<tr><td colspan="2" style="color:red">خطأ: تأكد من الفهرس (status + createdAt)</td></tr>`; }
   }
 
-  // --- منطق المعالجة الجديد (الموافقة / الرفض والاسترجاع) ---
-  window.handleWD = async (id, action) => {
-    withdrawMsg.textContent = "جاري المعالجة...";
+  window.handleWD = async (id, st) => {
+    if(!confirm("تأكيد الإجراء؟")) return;
+    await updateDoc(doc(db,"deposit_requests",id), {status:st});
+    loadWithdrawRequests(); loadStats();
+  };
+
+  // Topup Logic
+  document.getElementById('topupBtn').onclick = async () => {
+    const uid = document.getElementById('topupUserIdInput').value;
+    const amt = Number(document.getElementById('topupAmountInput').value);
+    if(!uid || !amt) return alert("خطأ");
     try {
-      const ref = doc(db, "deposit_requests", id);
-      const snap = await getDoc(ref);
-      if (!snap.exists()) return;
-      
-      const data = snap.data();
-      // تأكد أن الحالة هي new لكي لا نعالج الطلب مرتين
-      if (data.status !== 'new') { alert("تمت معالجة الطلب مسبقاً"); return; }
+      const uRef = doc(db,"users",uid);
+      const snap = await getDoc(uRef);
+      if(!snap.exists()) return alert("مستخدم غير موجود");
+      await updateDoc(uRef, { walletBalance: (snap.data().walletBalance||0) + amt });
+      await addDoc(collection(db,"wallet_topups"), {userId:uid, amount:amt, createdAt:serverTimestamp()});
+      alert("تم الشحن");
+    } catch(e){ alert("خطأ"); }
+  };
 
-      if (action === 'approve') {
-        // المال مخصوم بالفعل من جهة المستخدم، لا نفعل شيئاً سوى تحديث الحالة
-        await updateDoc(ref, { status: 'approved', processedAt: serverTimestamp() });
-        withdrawMsg.textContent = "تمت الموافقة (الرصيد مخصوم مسبقاً)";
-      } 
-      else if (action === 'reject') {
-        // إعادة المبلغ للمحفظة
-        const refundAmount = Number(data.amount || 0);
-        if (refundAmount > 0) {
-           const uRef = doc(db, "users", data.userId);
-           const uSnap = await getDoc(uRef);
-           if (uSnap.exists()) {
-             const currentBal = Number(uSnap.data().walletBalance || 0);
-             await updateDoc(uRef, { walletBalance: currentBal + refundAmount });
-           }
-        }
-        await updateDoc(ref, { status: 'rejected', processedAt: serverTimestamp() });
-        withdrawMsg.textContent = "تم الرفض وإرجاع الرصيد للمستخدم";
-      }
-
-      withdrawMsg.className = "success";
-      loadStats(); loadWithdrawRequests();
-    } catch (e) { 
-      alert("خطأ: " + e.message); 
-      withdrawMsg.textContent = "حدث خطأ";
-      withdrawMsg.className = "error";
-    }
-  }
-
+  // Helpers
+  window.delDoc = async (c,id) => { if(confirm("حذف؟")) { await deleteDoc(doc(db,c,id)); if(c==='news') loadNews(); } };
+  
   async function loadStats() {
-    try {
-      const u = await getDocs(collection(db, "users"));
-      let users=0, bal=0; u.forEach(d => { users++; bal += Number(d.data().walletBalance||0); });
-      statTotalUsers.textContent = users; statTotalBalance.textContent = bal.toFixed(2);
+    const u = await getDocs(collection(db,"users"));
+    document.getElementById('statTotalUsers').innerText = u.size;
+    
+    const t = await getDocs(collection(db,"wallet_topups"));
+    let sumT = 0; t.forEach(d=> sumT+=d.data().amount||0);
+    document.getElementById('statTotalTopup').innerText = sumT;
 
-      const w = await getDocs(collection(db, "deposit_requests"));
-      let pen=0; w.forEach(d => { if(d.data().status==='new') pen++; });
-      statPendingWithdraw.textContent = pen;
-
-      const t = await getDocs(collection(db, "wallet_topups"));
-      let top=0; t.forEach(d => { top += Number(d.data().amount||0); });
-      statTotalTopup.textContent = top.toFixed(2);
-    } catch (e) {}
+    const w = await getDocs(query(collection(db,"deposit_requests"), where("status","==","new")));
+    document.getElementById('statPendingWithdraw').innerText = w.size;
   }
 </script>
 </body>
