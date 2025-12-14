@@ -1,0 +1,20 @@
+{
+  "name": "Sky Miner",
+  "short_name": "سحابي",
+  "description": "منصة لمحاكاة وإدارة التعدين السحابي للعملات الرقمية",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "dir": "rtl",
+  "lang": "ar",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/616/616554.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
