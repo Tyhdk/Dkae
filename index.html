@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -154,8 +153,8 @@
         border: 1px solid rgba(255,255,255,0.05);
     }
     .level-card {
-        background: #1e293b; padding: 10px; border-radius: 8px; margin-bottom: 8px; font-size: 12px;
-        border-right: 3px solid #f59e0b;
+        background: #1e293b; padding: 10px; border-radius: 8px; margin-bottom: 8px; font-size: 12px
+;        border-right: 3px solid #f59e0b;
     }
     .level-locked { opacity: 0.5; border-right-color: #64748b; }
   </style>
@@ -803,7 +802,7 @@
             
             const teamEarn = data.teamTotalEarnings || 0;
             document.getElementById('teamEarnings').innerText = teamEarn.toFixed(2);
-            document.getElementById('referralLink').value = `${window.location.origin}/?ref=${data.uid}`;
+            document.getElementById('referralLink').value = `${window.location.origin}${window.location.pathname}?ref=${data.uid}`;
 
             const qTeam = query(collection(db, "users"), where("referredBy", "==", currentUser.uid));
             const snapTeam = await getDocs(qTeam);
@@ -893,4 +892,4 @@
     // تم حذف دالة الإشعارات الوهمية startFakeNotifications
   </script>
 </body>
-</html>
+      </html>
